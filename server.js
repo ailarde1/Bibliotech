@@ -4,7 +4,6 @@ const axios = require('axios');
 const app = express();
 const Book = require('../models/Book'); // Import Book model
 const User = require('../models/User'); // Import the User model
-const UserBook = require('../models/UserBook'); //Import UserBook model
 const cors = require('cors');
 const PORT = process.env.PORT || 5000;
 
