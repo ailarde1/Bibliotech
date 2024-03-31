@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useState, useEffect } from "react";
 import {
   ScrollView,
   View,
@@ -12,12 +12,19 @@ import {
 } from "react-native";
 
 import * as SecureStore from 'expo-secure-store';
+import { useRefresh } from './RefreshContext';
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 const EditBookDetailsPage = ({ route, navigation }) => {
     // get the book object passed through navigation
     const { book } = route.params;
+
+
+    const [refreshing, setRefreshing] = useState(false);
+    const { refreshBookshelf, resetRefresh } = useRefresh();
+    const { triggerRefresh } = useRefresh();
+
   
     // State for each book detail
     const [title, setTitle] = useState(book.title);
@@ -25,6 +32,7 @@ const EditBookDetailsPage = ({ route, navigation }) => {
     const [publishedDate, setPublishedDate] = useState(book.publishedDate);
     const [pageCount, setPageCount] = useState(book.pageCount.toString());
     const [description, setDescription] = useState(book.description);
+    const [readStatus, setReadStatus] = useState(book.readStatus || 'not read');
   
     // handle the submission of the edit
     const submitEdits = async () => {
@@ -42,22 +50,25 @@ const EditBookDetailsPage = ({ route, navigation }) => {
             description,
             pageCount: parseInt(pageCount, 10),
             username,
+            readStatus,
           }),
         });
-  
+    
         if (!response.ok) {
           throw new Error('Failed to update book details.');
         }
-  
+    
         Alert.alert('Success', 'Book details updated successfully.', [
-          { text: 'OK', onPress: () => navigation.goBack() },
+          { text: 'OK', onPress: () => {
+            navigation.popToTop();
+            triggerRefresh();
+          }},
         ]);
       } catch (error) {
         Alert.alert('Error', error.message);
       }
     };
     
-    //Deletes book from backend/db
     const deleteBook = async () => {
       const username = await SecureStore.getItemAsync('username');
       try {
@@ -67,28 +78,40 @@ const EditBookDetailsPage = ({ route, navigation }) => {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                title,
-                authors,
-                publishedDate,
-                description,
-                pageCount: parseInt(pageCount, 10),
                 username,
               }),
           });
-
+    
           if (!response.ok) {
               throw new Error('Failed to delete the book.');
           }
-
+    
           Alert.alert('Success', 'Book deleted successfully.', [
-              { text: 'OK', onPress: () => navigation.popToTop() },
+              { text: 'OK', onPress: () => {
+                  navigation.popToTop();
+                  triggerRefresh();
+              }},
           ]);
       } catch (error) {
           Alert.alert('Error', error.message);
       }
-  };
+    };
 
-  //header button to delete - followed by confirmation Alert
+  const renderStatusButton = (status) => (
+    <TouchableOpacity
+        style={[
+            styles.statusButton,
+            readStatus === status ? styles.activeStatusButton : styles.inactiveStatusButton,
+        ]}
+        onPress={() => setReadStatus(status)}
+    >
+        <Text style={styles.statusButtonText}>
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+        </Text>
+    </TouchableOpacity>
+);
+
+  //header button to delete - followed by confirmation alert
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -117,6 +140,7 @@ const EditBookDetailsPage = ({ route, navigation }) => {
       ),
     });
   }, [navigation]);
+  
 
   return (
     <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
@@ -155,6 +179,11 @@ const EditBookDetailsPage = ({ route, navigation }) => {
           multiline
         />
       </View>
+      <View style={styles.statusContainer}>
+                {renderStatusButton('read')}
+                {renderStatusButton('reading')}
+                {renderStatusButton('not read')}
+            </View>
       <Button title="Submit" onPress={submitEdits} />
     </ScrollView>
   );
@@ -197,6 +226,25 @@ const styles = StyleSheet.create({
 },
 headerButtonText: {
     color: 'white',
+},
+statusContainer: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  marginVertical: 10,
+},
+statusButton: {
+  padding: 10,
+  marginHorizontal: 5,
+  borderRadius: 5,
+},
+activeStatusButton: {
+  backgroundColor: '#007bff',
+},
+inactiveStatusButton: {
+  backgroundColor: '#e9ecef',
+},
+statusButtonText: {
+  color: 'white',
 },
 });
 

@@ -4,14 +4,12 @@ import { View, Text, Switch, Button, StyleSheet, ScrollView } from 'react-native
 const SettingsPage = () => {
   return (
 
-// need to set global variables, and also communicate change to backend.
-// SecureStore?
 <ScrollView>
   <View style={styles.settingsContainer}>
     <View style={styles.settingsRow}>
       <Switch />
       <Text style={styles.settingsText}>
-        Dark Mode
+        dark mode
       </Text>
     </View>
   </View>

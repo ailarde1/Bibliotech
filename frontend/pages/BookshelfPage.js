@@ -9,12 +9,13 @@ import {
   RefreshControl,
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
-
+import { useRefresh } from './RefreshContext';
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 const BookshelfPage = ({ navigation }) => {
   const [books, setBooks] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const { refreshBookshelf, resetRefresh } = useRefresh();
 
   const fetchBooks = async (username) => {
     try {
@@ -34,22 +35,30 @@ const BookshelfPage = ({ navigation }) => {
       console.error("Error fetching books:", error);
     }
   };
+  
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     SecureStore.getItemAsync("username").then((username) => {
-      if (username) {
-        fetchBooks(username).then(() => setRefreshing(false));
-      } else {
-        console.error("Username not found");
-        setRefreshing(false);
-      }
+        if (username) {
+            fetchBooks(username).finally(() => setRefreshing(false));
+        } else {
+            console.error("Username not found");
+            setRefreshing(false);
+        }
     });
-  }, []);
+}, []);
 
-  useEffect(() => {
-    onRefresh(); // Call onRefresh initially   need to figure out how to call when bookshelf changes
-  }, [onRefresh]);
+useEffect(() => {
+    onRefresh(); // Call on component mount to load data initially
+}, [onRefresh]);
+
+useEffect(() => {
+    if (refreshBookshelf) {
+        onRefresh(); // React to a global refresh action
+        resetRefresh(); // Reset the global refresh state
+    }
+}, [refreshBookshelf, resetRefresh, onRefresh]);
 
   return (
     <View style={styles.container}>

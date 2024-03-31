@@ -1,21 +1,31 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from "react";
+import {
+  View,
+  TextInput,
+  Button,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 //Url to backend. Edit in .env file.
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
-
 function SearchPage() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [books, setBooks] = useState([]);
   const navigation = useNavigation();
 
   const fetchSearchResults = async (query) => {
     try {
-      const response = await fetch(`${apiUrl}/search?query=${encodeURIComponent(query)}`);
+      const response = await fetch(
+        `${apiUrl}/search?query=${encodeURIComponent(query)}`
+      );
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
       const data = await response.json();
       setBooks(data.items || []);
@@ -36,6 +46,8 @@ function SearchPage() {
         placeholder="Search books..."
         value={searchTerm}
         onChangeText={setSearchTerm}
+        onSubmitEditing={handleSearch}
+        returnKeyType="search"
       />
       <Button title="Search" onPress={handleSearch} />
       <ScrollView style={styles.resultsContainer}>
@@ -43,10 +55,13 @@ function SearchPage() {
           <TouchableOpacity
             key={book.id}
             style={styles.bookItem}
-            onPress={() => navigation.navigate('NewBookDetails', { book })}
+            onPress={() => navigation.navigate("NewBookDetails", { book })}
           >
             {book.volumeInfo.imageLinks?.thumbnail && (
-              <Image source={{ uri: book.volumeInfo.imageLinks.thumbnail }} style={styles.bookImage} />
+              <Image
+                source={{ uri: book.volumeInfo.imageLinks.thumbnail }}
+                style={styles.bookImage}
+              />
             )}
             <Text style={styles.bookTitle}>{book.volumeInfo.title}</Text>
           </TouchableOpacity>
@@ -54,7 +69,7 @@ function SearchPage() {
       </ScrollView>
     </View>
   );
-} 
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -77,7 +92,7 @@ const styles = StyleSheet.create({
   bookImage: {
     width: 100,
     height: 150,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   bookTitle: {
     fontSize: 16,

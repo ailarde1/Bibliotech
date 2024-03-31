@@ -1,44 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useAuth } from "./Authentication";
 import * as SecureStore from 'expo-secure-store';
 
-//Need to remake with Proper User login and Authentication
-
-//Url to backend. Edit in .env file.
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
+import { useRefresh } from './RefreshContext';
 
 const LoginPage = ({ navigation }) => {
   const [inputValue, setInputValue] = useState("");
   const { setIsAuthenticated } = useAuth();
+  const { triggerRefresh } = useRefresh();
 
   const storeUsername = async (username) => {
     await SecureStore.setItemAsync('username', username);
   };
 
   const handleLoginPress = () => {
-    console.log(inputValue);
-    fetch(`${apiUrl}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: inputValue }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-        if (data.message === 'Username Exists') {
-          Alert.alert("Login Success", "You have been logged in successfully.");
-          setIsAuthenticated(true);
-          storeUsername(inputValue); // Store username on successful login
-        } else {
-          Alert.alert("Login Error", data.message);
-          setIsAuthenticated(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        Alert.alert("Login Error", "An unexpected error occurred");
-      });
+    loginUser(inputValue);
   };
 
   const handleNewUserPress = () => {
@@ -54,7 +32,8 @@ const LoginPage = ({ navigation }) => {
         if (data.message.includes('User created')) {
           Alert.alert("Success", "Username has been added.");
           setIsAuthenticated(true);
-          storeUsername(inputValue); // Store username on successful creation
+          storeUsername(inputValue);
+          triggerRefresh();
         } else {
           Alert.alert("Error", data.message);
           setIsAuthenticated(false);
@@ -66,8 +45,40 @@ const LoginPage = ({ navigation }) => {
       });
   };
 
-  return (
+  const loginUser = (username) => {
+    console.log(username);
+    fetch(`${apiUrl}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+        if (data.message === 'Username Exists') {
+          Alert.alert("Login Success", "You have been logged in successfully.");
+          setIsAuthenticated(true);
+          storeUsername(username);
+          triggerRefresh();
+        } else {
+          Alert.alert("Login Error", data.message);
+          setIsAuthenticated(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        Alert.alert("Login Error", "An unexpected error occurred");
+      });
+  };
+
+
+
+  return ( //Remove test users later. just put in so I dont have to log in every time.
+
     <View style={styles.container}>
+      <View style={styles.buttons}>
+        <Button title="Test User 1" onPress={() => loginUser('Martyn')} />
+      </View>
       <TextInput
         style={styles.input}
         onChangeText={setInputValue}
@@ -99,6 +110,9 @@ const styles = StyleSheet.create({
   buttons: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  testUser: {
+    color: 'red',
   },
 });
 

@@ -6,15 +6,18 @@ import {
   Text,
   TextInput,
   Button,
+  TouchableOpacity,
   StyleSheet,
 } from 'react-native';
 
 import * as SecureStore from 'expo-secure-store';
+import { useRefresh } from './RefreshContext';
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 function NewBookDetailsPage({ route, navigation }) {
   const { book } = route.params;
+  const { triggerRefresh } = useRefresh();
 
   // Initialize state for each editable book detail
   const [title, setTitle] = useState(book.volumeInfo.title);
@@ -22,6 +25,7 @@ function NewBookDetailsPage({ route, navigation }) {
   const [publishedDate, setPublishedDate] = useState(book.volumeInfo.publishedDate);
   const [description, setDescription] = useState(book.volumeInfo.description);
   const [pageCount, setPageCount] = useState(book.volumeInfo.pageCount.toString());
+  const [readStatus, setReadStatus] = useState('not read');
  
   const isbn = book.volumeInfo.industryIdentifiers?.[0]?.identifier || '';  //Not able to edit idbn
 
@@ -37,6 +41,7 @@ function NewBookDetailsPage({ route, navigation }) {
       pageCount: parseInt(pageCount, 10), // Ensure pageCount is sent as a number
       isbn,
       username,
+      readStatus,
     };
 
     try {
@@ -53,12 +58,26 @@ function NewBookDetailsPage({ route, navigation }) {
       }
 
       alert('Book added to library');
+      triggerRefresh();
       navigation.goBack(); // Sends them back to the search page
     } catch (error) {
       console.error('Error:', error);
       alert('Error adding book');
     }
   };
+  const renderStatusButton = (status) => (
+    <TouchableOpacity
+      style={[
+        styles.statusButton,
+        readStatus === status ? styles.activeStatusButton : styles.inactiveStatusButton,
+      ]}
+      onPress={() => setReadStatus(status)}
+    >
+      <Text style={styles.statusButtonText}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Text>
+    </TouchableOpacity>
+  );
 
   return (
     <ScrollView style={styles.container}>
@@ -111,8 +130,13 @@ function NewBookDetailsPage({ route, navigation }) {
         <TextInput
           style={styles.input}
           value={isbn}
-          editable={false} // Makes this TextInput not editable
+          editable={false} //not editable
         />
+      </View>
+      <View style={styles.statusContainer}>
+        {renderStatusButton('read')}
+        {renderStatusButton('reading')}
+        {renderStatusButton('not read')}
       </View>
       <View style={styles.buttonContainer}>
         <Button title="Save to Library" onPress={addToLibrary} />
@@ -154,6 +178,25 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 20,
     marginBottom: 25,
+  },
+  statusContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 10,
+  },
+  statusButton: {
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 5,
+  },
+  activeStatusButton: {
+    backgroundColor: '#007bff',
+  },
+  inactiveStatusButton: {
+    backgroundColor: '#e9ecef',
+  },
+  statusButtonText: {
+    color: 'white',
   },
 });
 
