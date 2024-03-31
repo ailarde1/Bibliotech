@@ -6,6 +6,7 @@ import { Button } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { RefreshProvider } from './pages/RefreshContext';
 
 // Import all the pages
 import SearchPage from './pages/SearchPage';
@@ -25,6 +26,7 @@ const Tab = createBottomTabNavigator();
 const BookStack = createStackNavigator();
 const SearchStack = createStackNavigator();
 const Login = createStackNavigator();
+global.refreshBookshelf = 'false';
 
 //Stacks of pages
 function SearchStackScreen() {
@@ -49,9 +51,11 @@ const BookStackScreen = () => {
 const App = () => {
   return (
     <AuthProvider>
+      <RefreshProvider>
       <NavigationContainer>
         <MainApp />
       </NavigationContainer>
+      </RefreshProvider>
     </AuthProvider>
   );
 };
