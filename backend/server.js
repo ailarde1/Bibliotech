@@ -68,6 +68,7 @@ app.post("/api/books", async (req, res) => {
     width,
     isbn,
     username,
+    readStatus,
   } = req.body;
   console.log("Received ISBN:", isbn); // Log the ISBN received
   console.log("Received username:", username); // Log the username received
@@ -89,6 +90,7 @@ app.post("/api/books", async (req, res) => {
       length,
       width,
       isbn,
+      readStatus,
       userId,
     });
 
@@ -212,3 +214,4 @@ app.post("/api/login", async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
