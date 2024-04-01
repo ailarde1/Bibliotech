@@ -18,12 +18,14 @@ mongoose.connect('mongodb+srv://maxxgarris33:baCd578D7LCVAV16@cluster0.rlrwlhn.m
     readStatus: {
       type: String,
       required: true,
-      enum: ['read', 'reading', 'not read'], // Ensures only valid statuses are set
-      default: 'not read', // Default value if none is provided
+      enum: ['read', 'reading', 'not read'], // Ensures only valid status set
+      default: 'not read', // Default value
     },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   });
 
 const Book = mongoose.model('Book', bookSchema);
+
+module.exports = Book;
 
 module.exports = Book;
