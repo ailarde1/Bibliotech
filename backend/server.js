@@ -32,7 +32,44 @@ app.get("/api/search", async (req, res) => {
   }
 });
 
+app.get("/api/books/info/title/:title", async (req, res) => {
+  try {
+    const { title } = req.params;
+    if (!title) {
+      return res.status(400).json({ message: "Title is required" });
+    }
+    // Open Library URL
+    const openLibrarySearchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`;
+    const response = await axios.get(openLibrarySearchUrl);
+    
+    // take the first result
+    const firstResult = response.data.docs[0];
+    if (!firstResult) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    const bookInfo = {
+      title: firstResult.title,
+      authors: firstResult.author_name ? firstResult.author_name.join(', ') : 'Unknown Author',
+      publishDate: firstResult.publish_date ? firstResult.publish_date[0] : 'Unknown Publish Date',
+      publisher: firstResult.publisher ? firstResult.publisher.join(', ') : 'Unknown Publisher',
+      isbn: firstResult.isbn ? firstResult.isbn[0] : 'Unknown ISBN',
+      numberOfPages: firstResult.number_of_pages_median || 'Unknown Page Count',
+    };
+
+    res.json(bookInfo);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Error fetching data from Open Library",
+      error: error.toString(),
+    });
+  }
+});
+
+
 //Get books endpoint
+
 app.get("/api/books", async (req, res) => {
   const username = req.query.username;
 
@@ -43,9 +80,9 @@ app.get("/api/books", async (req, res) => {
       return res.status(404).send("User not found");
     }
     const userId = user._id;
-
+    const readStatus = 'read';
     // with userId finds all books with that userId
-    const books = await Book.find({ userId: userId });
+    const books = await Book.find({ userId: userId});
     res.json(books);
   } catch (error) {
     res.status(500).send("Error retrieving the user's books: " + error.message);
@@ -214,4 +251,3 @@ app.post("/api/login", async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
