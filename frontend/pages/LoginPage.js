@@ -73,7 +73,7 @@ const LoginPage = ({ navigation }) => {
 
 
 
-  return ( //Remove test users later. just put in so I dont have to log in every time.
+  return ( //Remove test user later. just put in so I dont have to log in every time.
 
     <View style={styles.container}>
       <View style={styles.buttons}>

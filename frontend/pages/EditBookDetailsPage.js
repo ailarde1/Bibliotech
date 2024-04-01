@@ -140,6 +140,29 @@ const EditBookDetailsPage = ({ route, navigation }) => {
       ),
     });
   }, [navigation]);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    SecureStore.getItemAsync("username").then((username) => {
+      if (username) {
+        console.log("Username found:", username);
+      } else {
+        console.error("Username not found");
+      }
+      setRefreshing(false);
+    });
+  }, []);
+
+useEffect(() => {
+    onRefresh(); // Call to load initially
+}, [onRefresh]);
+
+useEffect(() => {
+    if (refreshBookshelf) {
+        onRefresh(); // React to a global refresh action
+        resetRefresh(); // Reset the global refresh state
+    }
+}, [refreshBookshelf, resetRefresh, onRefresh]);
   
 
   return (
