@@ -21,11 +21,27 @@ mongoose.connect('mongodb+srv://maxxgarris33:baCd578D7LCVAV16@cluster0.rlrwlhn.m
       enum: ['read', 'reading', 'not read'], // Ensures only valid status set
       default: 'not read', // Default value
     },
+    readFormat: {
+      type: String,
+      required: true,
+      enum: ['audio', 'physical', 'digital'], // Ensures only valid status set
+      default: 'physical', // Default value
+    },
+    audioLength: {
+      type: Number,
+      required: false, //optional
+    },
+    ebookPageCount: {
+      type: Number,
+      required: false, //optional
+    },
+
+
+
+
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   });
 
 const Book = mongoose.model('Book', bookSchema);
-
-module.exports = Book;
 
 module.exports = Book;
