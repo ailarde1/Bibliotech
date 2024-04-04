@@ -41,6 +41,7 @@ function SearchPage() {
 
   return (
     <View style={styles.container}>
+      <ScrollView style={styles.resultsContainer}showsVerticalScrollIndicator={false}>
       <TextInput
         style={styles.input}
         placeholder="Search books..."
@@ -50,7 +51,7 @@ function SearchPage() {
         returnKeyType="search"
       />
       <Button title="Search" onPress={handleSearch} />
-      <ScrollView style={styles.resultsContainer}>
+
         {books.map((book) => (
           <TouchableOpacity
             key={book.id}
@@ -73,8 +74,9 @@ function SearchPage() {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
-    padding: 20,
+    marginBottom: -40,
+    padding: 0,
+    paddingHorizontal: 20,
   },
   input: {
     height: 40,
@@ -83,8 +85,8 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   resultsContainer: {
-    marginBottom: 20,
-    marginTop: 20,
+    marginBottom: 40,
+    marginTop: 0,
   },
   bookItem: {
     marginBottom: 20,
@@ -98,6 +100,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
   },
+
 });
 
 export default SearchPage;

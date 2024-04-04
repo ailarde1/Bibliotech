@@ -109,7 +109,8 @@ const BookshelfPage = ({ navigation }) => {
           setSelection(newSelection);
         }}
       />
-      <FlatList
+      <FlatList 
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollView}
         data={filteredBooks}
         keyExtractor={(item) => item._id.toString()}
@@ -130,7 +131,7 @@ const BookshelfPage = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
   },
   bookItem: {
     flexDirection: "row",
@@ -143,15 +144,18 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   bookTitle: {
-    fontSize: 18,
+    fontSize: 20,
   },
   scrollView: {
     width: "100%",
   },
   segmentControl: {
-    marginBottom: 20,
+    marginHorizontal: 15,
+    marginBottom: 5,
   },
   bookShelfItem: {
+    margin: 0,
+    padding: 0,
     flex: 1 / 3, // three books per row in shelf view
     alignItems: "center",
     marginBottom: 10,
