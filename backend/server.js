@@ -21,6 +21,7 @@ app.get("/api/search", async (req, res) => {
     const response = await axios.get(
       `${googleBooksApiUrl}?q=${encodeURIComponent(query)}`
     );
+    console.log(response)
     res.json(response.data);
   } catch (error) {
     res
@@ -47,6 +48,14 @@ app.get("/api/books/info/title/:title", async (req, res) => {
     if (!firstResult) {
       return res.status(404).json({ message: "Book not found" });
     }
+    let coverUrl = "Unknown cover URL";
+    if (firstResult.cover_i) {
+        coverUrl = `https://covers.openlibrary.org/b/id/${firstResult.cover_i}-M.jpg`;
+    } else if (firstResult.cover_edition_key || (firstResult.edition_key && firstResult.edition_key.length > 0)) {
+        const olid = firstResult.cover_edition_key || firstResult.edition_key[0];
+        coverUrl = `https://covers.openlibrary.org/b/olid/${olid}-M.jpg`;
+    }
+
 
     const bookInfo = {
       title: firstResult.title,
@@ -55,6 +64,7 @@ app.get("/api/books/info/title/:title", async (req, res) => {
       publisher: firstResult.publisher ? firstResult.publisher.join(', ') : 'Unknown Publisher',
       isbn: firstResult.isbn ? firstResult.isbn[0] : 'Unknown ISBN',
       numberOfPages: firstResult.number_of_pages_median || 'Unknown Page Count',
+      newCoverUrl: coverUrl,
     };
 
     res.json(bookInfo);
@@ -80,7 +90,6 @@ app.get("/api/books", async (req, res) => {
       return res.status(404).send("User not found");
     }
     const userId = user._id;
-    const readStatus = 'read';
     // with userId finds all books with that userId
     const books = await Book.find({ userId: userId});
     res.json(books);
@@ -104,8 +113,11 @@ app.post("/api/books", async (req, res) => {
     length,
     width,
     isbn,
-    username,
     readStatus,
+    readFormat,
+    audioLength,
+    ebookPageCount,
+    username,
   } = req.body;
   console.log("Received ISBN:", isbn); // Log the ISBN received
   console.log("Received username:", username); // Log the username received
@@ -115,6 +127,15 @@ app.post("/api/books", async (req, res) => {
       return res.status(404).send("User not found");
     }
     const userId = user._id;
+
+    //section sees if user with isbn already exists
+
+    const existingBook = await Book.findOne({ isbn: isbn, userId: userId });
+    if (existingBook) {
+      // If a book with the same ISBN for this user exists, return a conflict status
+      return res.status(409).send("ISBN already exists for the user");
+    }
+
 
     let book = new Book({
       title,
@@ -128,7 +149,11 @@ app.post("/api/books", async (req, res) => {
       width,
       isbn,
       readStatus,
+      readFormat,
+      audioLength,
+      ebookPageCount,
       userId,
+
     });
 
     book = await book.save();
