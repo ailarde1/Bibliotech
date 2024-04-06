@@ -132,7 +132,7 @@ app.post("/api/books", async (req, res) => {
 
     const existingBook = await Book.findOne({ isbn: isbn, userId: userId });
     if (existingBook) {
-      // If a book with the same ISBN for this user exists, return a conflict status
+      // If a book with the same ISBN for this user exists, return a conflict status (409)
       return res.status(409).send("ISBN already exists for the user");
     }
 
