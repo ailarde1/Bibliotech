@@ -23,6 +23,9 @@ function NewBookDetailsPage({ route, navigation }) {
 
   const [newCoverUrl, setNewCoverUrl] = useState("");
   const [selectedCoverUrl, setSelectedCoverUrl] = useState("");
+  const [customCoverUrl, setCustomCoverUrl] = useState(null);
+  const [isManualUrlEnabled, setIsManualUrlEnabled] = useState(false);
+  const [showCustomCover, setShowCustomCover] = useState(false);
 
   // Initialize state for each editable book detail
   const [title, setTitle] = useState(book.volumeInfo.title);
@@ -33,10 +36,9 @@ function NewBookDetailsPage({ route, navigation }) {
     book.volumeInfo.publishedDate
   );
 
-  const [fetchedPageCount, setFetchedPageCount] = useState(""); // Declare fetchedPageCount
-  const [isCustomPageCount, setIsCustomPageCount] = useState(false); // Declare isCustomPageCount
-  const [selectedPageCount, setSelectedPageCount] = useState(""); // Declare selectedPageCount
-  // ^find better way to do this^
+  const [fetchedPageCount, setFetchedPageCount] = useState("");
+  const [isCustomPageCount, setIsCustomPageCount] = useState(false);
+  const [selectedPageCount, setSelectedPageCount] = useState("");
 
   const [description, setDescription] = useState(book.volumeInfo.description);
   const [pageCount, setPageCount] = useState(
@@ -95,21 +97,30 @@ function NewBookDetailsPage({ route, navigation }) {
   };
 
   const pickImage = async () => {
-    // Request permission to access media library
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      alert("You've refused to allow this app to access your photos!");
+    if (!permissionResult.granted) {
+      alert("You refused to allow access your photos");
       return;
     }
 
-    const pickerResult = await ImagePicker.launchImageLibraryAsync();
-    if (pickerResult.cancelled === true) {
-      return;
-    }
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 6],
+      quality: 1,
+    });
 
-    // Update selectedCoverUrl with the URI of the picked image
-    setSelectedCoverUrl(pickerResult.uri);
+    console.log(result);
+
+    if (!result.cancelled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+      console.log("New image URI:", uri);
+      setCustomCoverUrl(uri);
+      setSelectedCoverUrl(uri);
+    } else {
+      console.log("Image picker cancelled or failed");
+    }
   };
 
   const addToLibrary = async () => {
@@ -238,7 +249,7 @@ function NewBookDetailsPage({ route, navigation }) {
           marginVertical: 20,
         }}
       >
-        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+        <View style={styles.imagesContainer}>
           <TouchableOpacity
             onPress={() =>
               setSelectedCoverUrl(book.volumeInfo.imageLinks?.thumbnail)
@@ -253,6 +264,7 @@ function NewBookDetailsPage({ route, navigation }) {
               ]}
             />
           </TouchableOpacity>
+
           {newCoverUrl && (
             <TouchableOpacity onPress={() => setSelectedCoverUrl(newCoverUrl)}>
               <Image
@@ -264,14 +276,43 @@ function NewBookDetailsPage({ route, navigation }) {
               />
             </TouchableOpacity>
           )}
-          <TouchableOpacity
-            onPress={pickImage}
-            style={[styles.bookImage, styles.addNewImage]}
-          >
-            <Text style={{ fontSize: 24, color: "#FFF" }}>+</Text>
-          </TouchableOpacity>
-        </ScrollView>
+          {customCoverUrl && showCustomCover && (
+            <TouchableOpacity
+              onPress={() => setSelectedCoverUrl(customCoverUrl)}
+            >
+              <Image
+                source={{ uri: customCoverUrl }}
+                style={[
+                  styles.bookImage,
+                  selectedCoverUrl === customCoverUrl && styles.selectedImage,
+                ]}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
+
+      <TouchableOpacity
+        onPress={() => setIsManualUrlEnabled((prevState) => !prevState)}
+        style={styles.CustomCoverLink}
+      >
+        <Text style={styles.CustomCoverLinkText}>Input Custom Cover Link</Text>
+      </TouchableOpacity>
+
+      {isManualUrlEnabled && (
+        <View style={styles.urlInputContainer}>
+          <TextInput
+            style={styles.input}
+            onChangeText={(text) => {
+              setCustomCoverUrl(text); // Set custom URL
+            }}
+            value={customCoverUrl}
+            placeholder="Enter Link of Image"
+            onSubmitEditing={() => setShowCustomCover(true)}
+          />
+        </View>
+      )}
+
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Title:</Text>
         <TextInput style={styles.input} onChangeText={setTitle} value={title} />
@@ -362,6 +403,7 @@ function NewBookDetailsPage({ route, navigation }) {
           />
         </View>
       )}
+
       {readFormat === "audio" && (
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Audio Length (minutes):</Text>
@@ -386,16 +428,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  buttonContainer: {
+    marginTop: 20,
+    marginBottom: 25,
+    padding: 10,
+    alignItems: "center",
+    backgroundColor: "#007bff",
+  },
   bookImage: {
-    width: 200,
-    height: 300,
+    width: 100,
+    height: 150,
     resizeMode: "contain",
     alignSelf: "center",
+  },
+  imagesContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 0,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 8,
+  },
+  urlInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 8,
+    paddingHorizontal: 5,
   },
   label: {
     width: 100,
@@ -471,12 +531,19 @@ const styles = StyleSheet.create({
     borderWidth: 5,
     borderColor: "#007bff",
   },
-  addNewImage: {
-    width: 200,
-    height: 300,
+  CustomCoverLink: {
     backgroundColor: "#007bff",
-    justifyContent: "center",
+    paddingVertical: 10,
+    marginHorizontal: 20,
+    marginVertical: 10,
+    borderRadius: 5,
     alignItems: "center",
+    justifyContent: "center",
+  },
+  CustomCoverLinkText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

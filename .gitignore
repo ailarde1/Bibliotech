@@ -1,3 +1,4 @@
-node_modules/
-node_modules
-frontend/.env
+BIBLIOTECH/backend/.env
+BIBLIOTECH/frontend/.env
+BIBLIOTECH/backend/uploads
+BIBLIOTECH/backend/utils
