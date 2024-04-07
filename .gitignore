@@ -2,3 +2,5 @@ BIBLIOTECH/backend/.env
 BIBLIOTECH/frontend/.env
 BIBLIOTECH/backend/uploads
 BIBLIOTECH/backend/utils
+/frontend/.env
+/backend/.env
