@@ -20,6 +20,7 @@ const SettingsPage = () => {
             Dark Mode
           </Text>
         </View>
+        {isDarkMode && <Text style={styles.helloText}>Hello</Text>}
       </View>
     </ScrollView>
   );
@@ -41,6 +42,11 @@ const styles = StyleSheet.create({
   settingsText: {
     fontSize: 18,
     marginLeft: 10,
+  },
+  helloText: {
+    fontSize: 24,
+    color: '#FFFFFF',
+    marginTop: 20,
   },
 });
 
