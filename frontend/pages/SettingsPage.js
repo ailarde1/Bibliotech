@@ -1,25 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Switch, Button, StyleSheet, ScrollView } from 'react-native';
 
 const SettingsPage = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const handleDarkModeToggle = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
   return (
-
-<ScrollView>
-  <View style={styles.settingsContainer}>
-    <View style={styles.settingsRow}>
-      <Switch />
-      <Text style={styles.settingsText}>
-        dark mode
-      </Text>
-    </View>
-  </View>
-</ScrollView>
-
+    <ScrollView style={{ backgroundColor: isDarkMode ? '#333333' : '#FFFFFF' }}>
+      <View style={styles.settingsContainer}>
+        <View style={styles.settingsRow}>
+          <Switch
+            value={isDarkMode}
+            onValueChange={handleDarkModeToggle}
+          />
+          <Text style={[styles.settingsText, { color: isDarkMode ? '#FFFFFF' : '#333333' }]}>
+            Dark Mode
+          </Text>
+        </View>
+      </View>
+    </ScrollView>
   );
 };
-
-
-
 
 const styles = StyleSheet.create({
   settingsContainer: {
@@ -36,10 +40,8 @@ const styles = StyleSheet.create({
   },
   settingsText: {
     fontSize: 18,
-    color: '#333333',
     marginLeft: 10,
   },
 });
-
 
 export default SettingsPage;
