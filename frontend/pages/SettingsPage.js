@@ -20,7 +20,7 @@ const SettingsPage = () => {
             Dark Mode
           </Text>
         </View>
-        {isDarkMode && <Text style={styles.helloText}>Hello</Text>}
+        {isDarkMode && <Text style={styles.helloText}>Hi</Text>}
       </View>
     </ScrollView>
   );
