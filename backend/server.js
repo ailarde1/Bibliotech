@@ -6,6 +6,61 @@ const Book = require("../models/Book"); // Import Book model
 const User = require("../models/User"); // Import the User model
 const cors = require("cors");
 const PORT = process.env.PORT || 5000;
+const { Upload } = require("@aws-sdk/lib-storage");
+
+const { S3Client } = require("@aws-sdk/client-s3");
+const multer = require("multer");
+const { Readable } = require("stream");
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
+
+app.post("/api/upload", upload.single("file"), async (req, res) => {
+  console.log("upload request sent");
+  if (!req.file) {
+    return res.status(400).send("No file uploaded");
+  }
+
+  const fileStream = Readable.from(req.file.buffer);
+  const fileKey = req.file.originalname;
+
+  const uploadParams = {
+    Bucket: process.env.AWS_S3_BUCKET,
+    Key: fileKey,
+    Body: fileStream,
+  };
+
+  try {
+    const parallelUploads3 = new Upload({
+      client: s3Client,
+      params: uploadParams,
+    });
+
+    parallelUploads3.on("httpUploadProgress", (progress) => {
+      console.log(progress); // Log upload progress
+    });
+
+    await parallelUploads3.done();
+
+    // Construct URL of the uploaded file
+    const uploadedFileUrl = `https://${uploadParams.Bucket}.s3.${
+      process.env.AWS_REGION
+    }.amazonaws.com/${encodeURIComponent(uploadParams.Key)}`;
+
+    console.log("File uploaded successfully:", uploadedFileUrl);
+    res.status(200).json({ message: "File uploaded", url: uploadedFileUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to upload file");
+  }
+});
 
 app.use(express.json());
 app.use(cors());
@@ -21,15 +76,13 @@ app.get("/api/search", async (req, res) => {
     const response = await axios.get(
       `${googleBooksApiUrl}?q=${encodeURIComponent(query)}`
     );
-    console.log(response)
+    //console.log(response);
     res.json(response.data);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching data from Google Books API",
-        error: error.toString(),
-      });
+    res.status(500).json({
+      message: "Error fetching data from Google Books API",
+      error: error.toString(),
+    });
   }
 });
 
@@ -40,9 +93,11 @@ app.get("/api/books/info/title/:title", async (req, res) => {
       return res.status(400).json({ message: "Title is required" });
     }
     // Open Library URL
-    const openLibrarySearchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`;
+    const openLibrarySearchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(
+      title
+    )}`;
     const response = await axios.get(openLibrarySearchUrl);
-    
+
     // take the first result
     const firstResult = response.data.docs[0];
     if (!firstResult) {
@@ -50,20 +105,28 @@ app.get("/api/books/info/title/:title", async (req, res) => {
     }
     let coverUrl = "Unknown cover URL";
     if (firstResult.cover_i) {
-        coverUrl = `https://covers.openlibrary.org/b/id/${firstResult.cover_i}-M.jpg`;
-    } else if (firstResult.cover_edition_key || (firstResult.edition_key && firstResult.edition_key.length > 0)) {
-        const olid = firstResult.cover_edition_key || firstResult.edition_key[0];
-        coverUrl = `https://covers.openlibrary.org/b/olid/${olid}-M.jpg`;
+      coverUrl = `https://covers.openlibrary.org/b/id/${firstResult.cover_i}-M.jpg`;
+    } else if (
+      firstResult.cover_edition_key ||
+      (firstResult.edition_key && firstResult.edition_key.length > 0)
+    ) {
+      const olid = firstResult.cover_edition_key || firstResult.edition_key[0];
+      coverUrl = `https://covers.openlibrary.org/b/olid/${olid}-M.jpg`;
     }
-
 
     const bookInfo = {
       title: firstResult.title,
-      authors: firstResult.author_name ? firstResult.author_name.join(', ') : 'Unknown Author',
-      publishDate: firstResult.publish_date ? firstResult.publish_date[0] : 'Unknown Publish Date',
-      publisher: firstResult.publisher ? firstResult.publisher.join(', ') : 'Unknown Publisher',
-      isbn: firstResult.isbn ? firstResult.isbn[0] : 'Unknown ISBN',
-      numberOfPages: firstResult.number_of_pages_median || 'Unknown Page Count',
+      authors: firstResult.author_name
+        ? firstResult.author_name.join(", ")
+        : "Unknown Author",
+      publishDate: firstResult.publish_date
+        ? firstResult.publish_date[0]
+        : "Unknown Publish Date",
+      publisher: firstResult.publisher
+        ? firstResult.publisher.join(", ")
+        : "Unknown Publisher",
+      isbn: firstResult.isbn ? firstResult.isbn[0] : "Unknown ISBN",
+      numberOfPages: firstResult.number_of_pages_median || "Unknown Page Count",
       newCoverUrl: coverUrl,
     };
 
@@ -76,7 +139,6 @@ app.get("/api/books/info/title/:title", async (req, res) => {
     });
   }
 });
-
 
 //Get books endpoint
 
@@ -91,7 +153,7 @@ app.get("/api/books", async (req, res) => {
     }
     const userId = user._id;
     // with userId finds all books with that userId
-    const books = await Book.find({ userId: userId});
+    const books = await Book.find({ userId: userId });
     res.json(books);
   } catch (error) {
     res.status(500).send("Error retrieving the user's books: " + error.message);
@@ -100,8 +162,6 @@ app.get("/api/books", async (req, res) => {
 
 //Add new book endpoint
 app.post("/api/books", async (req, res) => {
-  console.log("Received book data:", req.body);
-
   const {
     title,
     authors,
@@ -136,7 +196,6 @@ app.post("/api/books", async (req, res) => {
       return res.status(409).send("ISBN already exists for the user");
     }
 
-
     let book = new Book({
       title,
       authors,
@@ -153,7 +212,6 @@ app.post("/api/books", async (req, res) => {
       audioLength,
       ebookPageCount,
       userId,
-
     });
 
     book = await book.save();
@@ -244,12 +302,10 @@ app.post("/api/new-user", async (req, res) => {
         .json({ message: "User created and logged in", user: user });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error during registration process",
-        error: error.toString(),
-      });
+    res.status(500).json({
+      message: "Error during registration process",
+      error: error.toString(),
+    });
   }
 });
 

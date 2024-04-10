@@ -14,6 +14,7 @@ import * as SecureStore from "expo-secure-store";
 import { useRefresh } from "./RefreshContext";
 import { Dropdown } from "react-native-element-dropdown";
 import * as ImagePicker from "expo-image-picker";
+import axios from 'axios';
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -21,11 +22,12 @@ function NewBookDetailsPage({ route, navigation }) {
   const { book } = route.params;
   const { triggerRefresh } = useRefresh();
 
-  const [newCoverUrl, setNewCoverUrl] = useState("");
-  const [selectedCoverUrl, setSelectedCoverUrl] = useState("");
-  const [customCoverUrl, setCustomCoverUrl] = useState(null);
-  const [isManualUrlEnabled, setIsManualUrlEnabled] = useState(false);
-  const [showCustomCover, setShowCustomCover] = useState(false);
+  const [newCoverUrl, setNewCoverUrl] = useState("");  //Cover from the other API
+  const [selectedCoverUrl, setSelectedCoverUrl] = useState(book.volumeInfo.imageLinks?.thumbnail);   //The Cover that the user has selected
+  const [customCoverUrl, setCustomCoverUrl] = useState(null);   //Cover the user inputed the link for 
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(""); //The local URI of the Image user uploaded
+  const [isManualUrlEnabled, setIsManualUrlEnabled] = useState(false); //The state for if URL input box should appear
+  const [showCustomCover, setShowCustomCover] = useState(false);  //State of if Image either uplaoded or linked should be displayed
 
   // Initialize state for each editable book detail
   const [title, setTitle] = useState(book.volumeInfo.title);
@@ -59,6 +61,22 @@ function NewBookDetailsPage({ route, navigation }) {
     { label: "Custom...", value: "custom" },
   ].filter(Boolean);
 
+
+  const axiosInstance = axios.create({
+    baseURL: apiUrl,
+  });
+  // Axios used for multiple attempts at uploading image.
+  axiosInstance.interceptors.response.use(undefined, async (err) => {
+    const config = err.config;
+    if (!config.retryCount || config.retryCount < config.maxRetries) {
+      config.retryCount = config.retryCount ? config.retryCount + 1 : 1;
+      const retryDelay = Math.pow(2, config.retryCount) * 1000;
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      return axiosInstance(config);
+    }
+    return Promise.reject(err);
+  });
+
   const fetchBookDetails = async () => {
     const title = book.volumeInfo.title;
     try {
@@ -75,7 +93,7 @@ function NewBookDetailsPage({ route, navigation }) {
         console.log("Failed to fetch book details");
       }
       const bookDetails = await response.json();
-      console.log(bookDetails);
+      //console.log(bookDetails);
       if (bookDetails.message === "Book not found") {
         console.log("Book not found");
         setFetchedPageCount("");
@@ -90,6 +108,7 @@ function NewBookDetailsPage({ route, navigation }) {
       }
       if (bookDetails.newCoverUrl) {
         setNewCoverUrl(bookDetails.newCoverUrl);
+        console.log(bookDetails.newCoverUrl);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -116,7 +135,7 @@ function NewBookDetailsPage({ route, navigation }) {
     if (!result.cancelled && result.assets && result.assets.length > 0) {
       const uri = result.assets[0].uri;
       console.log("New image URI:", uri);
-      setCustomCoverUrl(uri);
+      setUploadedImageUrl(uri);
       setSelectedCoverUrl(uri);
     } else {
       console.log("Image picker cancelled or failed");
@@ -125,12 +144,32 @@ function NewBookDetailsPage({ route, navigation }) {
 
   const addToLibrary = async () => {
     const username = await SecureStore.getItemAsync("username");
+  
+    let finalCoverUrl = uploadedImageUrl || selectedCoverUrl || book.volumeInfo.imageLinks.thumbnail;
+  
+    // If user uploaded an image and that is one that is selected
+    if (uploadedImageUrl === selectedCoverUrl) {
+      try {
+        const newUploadedImageUrl = await uploadImage(uploadedImageUrl);
+        if (newUploadedImageUrl) {
+          finalCoverUrl = newUploadedImageUrl; // sets to URL returned from backend
+        } else {
+          alert("Failed to upload custom image.");
+          return;
+        }
+      } catch (error) {
+        console.error("Upload Image Error:", error);
+        alert("An error occurred during image upload.");
+        return;
+      }
+    }
+    console.log(`finalCoverUrl: ${finalCoverUrl}`);
 
     let bookDetails = {
       title,
       authors,
       publishedDate,
-      thumbnail: selectedCoverUrl || book.volumeInfo.imageLinks.thumbnail,
+      thumbnail: finalCoverUrl,
       description,
       pageCount: parseInt(selectedPageCount, 10) || pageCount,
       isbn,
@@ -236,6 +275,36 @@ function NewBookDetailsPage({ route, navigation }) {
     </TouchableOpacity>
   );
 
+
+
+//upload Image. Had bug where first upload would always fail. Cheap solution was to retry it multiple times.
+const uploadImage = async (uri) => {
+  const formData = new FormData();
+  formData.append("file", {
+    uri: uri,
+    type: "image/jpeg",
+    name: uri.split("/").pop(),
+  });
+
+  try {
+    const response = await axiosInstance.post('/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      maxRetries: 5, //number of retries
+    });
+
+    if (response.status === 200) {
+      alert("Image uploaded successfully");
+      return response.data.url;
+    } else {
+      alert("Failed to upload image");
+    }
+  } catch (error) {
+    console.error("Upload failed after retries:", error);
+    alert("Error uploading image after retries");
+  }
+};
   useEffect(() => {
     fetchBookDetails(book.volumeInfo.title);
   }, [book.volumeInfo.title]);
@@ -289,15 +358,36 @@ function NewBookDetailsPage({ route, navigation }) {
               />
             </TouchableOpacity>
           )}
+          {uploadedImageUrl && (
+            <TouchableOpacity
+              onPress={() => setSelectedCoverUrl(uploadedImageUrl)}
+            >
+              <Image
+                source={{ uri: uploadedImageUrl }}
+                style={[
+                  styles.bookImage,
+                  selectedCoverUrl === uploadedImageUrl && styles.selectedImage,
+                ]}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
+
+      <TouchableOpacity
+        onPress={pickImage}
+        style={styles.CustomCoverLink}
+      >
+        <Text style={styles.CustomCoverLinkText}>Upload Custom Image</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         onPress={() => setIsManualUrlEnabled((prevState) => !prevState)}
         style={styles.CustomCoverLink}
       >
-        <Text style={styles.CustomCoverLinkText}>Input Custom Cover Link</Text>
+        <Text style={styles.CustomCoverLinkText}>Input Custom Cover URL</Text>
       </TouchableOpacity>
+
 
       {isManualUrlEnabled && (
         <View style={styles.urlInputContainer}>
@@ -469,9 +559,6 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 18,
   },
-  multilineInput: {
-    height: 100,
-  },
   buttonContainer: {
     marginTop: 20,
     marginBottom: 25,
@@ -486,27 +573,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "white",
     elevation: 5,
-  },
-  placeholderStyle: {
-    fontSize: 18,
-    color: "gray",
-  },
-  selectedTextStyle: {
-    fontSize: 18,
-    color: "black",
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
-  },
-  itemStyle: {
-    justifyContent: "flex-start",
-  },
-  itemTextStyle: {
-    fontSize: 16,
-  },
-  dropdownStyle: {
-    backgroundColor: "white",
   },
   statusContainer: {
     flexDirection: "row",

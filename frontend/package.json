@@ -4,8 +4,8 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -16,6 +16,7 @@
     "@react-navigation/stack": "^6.3.29",
     "@types/react-native-snap-carousel": "^3.8.11",
     "aws-sdk": "^2.1593.0",
+    "axios": "^1.6.8",
     "deprecated-react-native-prop-types": "^5.0.0",
     "expo": "~50.0.14",
     "expo-image-picker": "~14.7.1",
@@ -26,13 +27,15 @@
     "react-native-config": "^1.5.1",
     "react-native-element-dropdown": "^2.10.4",
     "react-native-gesture-handler": "~2.14.0",
+    "react-native-image-picker": "^7.1.2",
     "react-native-reanimated": "~3.6.2",
     "react-native-safe-area-context": "^4.8.2",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-svg": "^14.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "expo-module-scripts": "^3.4.1"
   },
   "private": true
 }
