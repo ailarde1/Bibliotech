@@ -14,11 +14,12 @@ import SocialPage from './pages/SocialPage';
 import BookshelfPage from './pages/BookshelfPage';
 import BookDetailsPage from './pages/BookDetailsPage';
 import DataPage from './pages/DataPage';
-import SettingsPage from './pages/SettingsPage';
+import SettingsProfilePage from './pages/SettingsProfilePage';
 import NewBookDetailsPage from './pages/NewBookDetailsPage';
-import UserProfilePage from './pages/UserProfilePage';
 import LoginPage from './pages/LoginPage';
 import EditBookDetailsPage from './pages/EditBookDetailsPage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
+import EditProfilePage from './pages/EditProfilePage';
 
 import { AuthProvider, useAuth } from './pages/Authentication';
 
@@ -44,6 +45,17 @@ const BookStackScreen = () => {
       <BookStack.Screen name="Bookshelfs" component={BookshelfPage}/>
       <BookStack.Screen name="BookDetails" component={BookDetailsPage}/>
       <BookStack.Screen name="EditBookDetails" component={EditBookDetailsPage}/>
+    </BookStack.Navigator>
+  );
+};
+
+const SettingsStackScreen = () => {
+  return (
+    <BookStack.Navigator>
+      <BookStack.Screen name="Settings" component={SettingsProfilePage}/>
+      <BookStack.Screen name="EditProfile" component={EditProfilePage}/>
+      <BookStack.Screen name="EditPassword" component={ChangePasswordPage}/>
+      <BookStack.Screen name="LoginPage" component={LoginPage}/>
     </BookStack.Navigator>
   );
 };
@@ -76,7 +88,7 @@ const MainApp = () => {
         <Tab.Screen name="Search" component={SearchStackScreen} />
         <Tab.Screen name="Bookshelf" component={BookStackScreen} options={{headerShown: false }} />
         <Tab.Screen name="Data" component={DataPage} />
-        <Tab.Screen name="Settings" component={SettingsPage} />
+        <Tab.Screen name="Settings" component={SettingsStackScreen} options={{headerShown: false }}/>
     </Tab.Navigator>
   );
 };

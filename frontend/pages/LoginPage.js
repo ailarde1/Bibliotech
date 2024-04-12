@@ -7,32 +7,31 @@ const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 import { useRefresh } from './RefreshContext';
 
 const LoginPage = ({ navigation }) => {
-  const [inputValue, setInputValue] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const { setIsAuthenticated } = useAuth();
   const { triggerRefresh } = useRefresh();
 
-  const storeUsername = async (username) => {
+  const storeCredentials = async (username) => {
     await SecureStore.setItemAsync('username', username);
   };
 
   const handleLoginPress = () => {
-    loginUser(inputValue);
+    loginUser(username, password);
   };
 
   const handleNewUserPress = () => {
-    console.log(inputValue);
     fetch(`${apiUrl}/new-user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: inputValue }),
+      body: JSON.stringify({ username: username, password: password }),
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Success:", data);
         if (data.message.includes('User created')) {
-          Alert.alert("Success", "Username has been added.");
+          Alert.alert("Success", "User has been added.");
           setIsAuthenticated(true);
-          storeUsername(inputValue);
+          storeCredentials(username);
           triggerRefresh();
         } else {
           Alert.alert("Error", data.message);
@@ -40,25 +39,22 @@ const LoginPage = ({ navigation }) => {
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
         Alert.alert("Error", "An unexpected error occurred");
       });
   };
 
-  const loginUser = (username) => {
-    console.log(username);
+  const loginUser = (username, password) => {
     fetch(`${apiUrl}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username }),
+      body: JSON.stringify({ username, password }),
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Success:", data);
-        if (data.message === 'Username Exists') {
+        if (data.message === 'Login successful') {
           Alert.alert("Login Success", "You have been logged in successfully.");
           setIsAuthenticated(true);
-          storeUsername(username);
+          storeCredentials(username);
           triggerRefresh();
         } else {
           Alert.alert("Login Error", data.message);
@@ -66,24 +62,27 @@ const LoginPage = ({ navigation }) => {
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
         Alert.alert("Login Error", "An unexpected error occurred");
       });
   };
 
-
-
-  return ( //Remove test user later. just put in so I dont have to log in every time.
-
+  return (
     <View style={styles.container}>
       <View style={styles.buttons}>
-        <Button title="Test User 1" onPress={() => loginUser('Martyn')} />
+        <Button title="Test User 1" onPress={() => loginUser('Martyn', 'password1')} />
       </View>
       <TextInput
         style={styles.input}
-        onChangeText={setInputValue}
-        value={inputValue}
+        onChangeText={setUsername}
+        value={username}
         placeholder="Enter Username"
+      />
+      <TextInput
+        style={styles.input}
+        onChangeText={setPassword}
+        value={password}
+        placeholder="Enter Password"
+        secureTextEntry={true} // hides the password input
       />
       <View style={styles.buttons}>
         <Button title="Login" onPress={handleLoginPress} />
@@ -110,9 +109,6 @@ const styles = StyleSheet.create({
   buttons: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  testUser: {
-    color: 'red',
   },
 });
 

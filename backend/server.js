@@ -4,6 +4,8 @@ const axios = require("axios");
 const app = express();
 const Book = require("../models/Book"); // Import Book model
 const User = require("../models/User"); // Import the User model
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 const cors = require("cors");
 const PORT = process.env.PORT || 5000;
 const { Upload } = require("@aws-sdk/lib-storage");
@@ -13,6 +15,7 @@ const multer = require("multer");
 const { Readable } = require("stream");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+app.use(express.json());
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
@@ -160,6 +163,31 @@ app.get("/api/books", async (req, res) => {
   }
 });
 
+app.get("/api/userinfo", async (req, res) => {
+  const username = req.query.username; // Receive username from query parameters
+
+  try {
+    // Find user by username
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userInfo = {
+      username: user.username,
+      imageUrl: user.imageUrl,
+      // Add other fields as necessary
+    };
+
+    res.json(userInfo); // Valid JSON response
+  } catch (error) {
+    res.status(500).json({
+      error: "Error retrieving user information",
+      message: error.message,
+    });
+  }
+});
+
 //Add new book endpoint
 app.post("/api/books", async (req, res) => {
   const {
@@ -285,44 +313,87 @@ app.delete("/api/books/:isbn", async (req, res) => {
 // New user Creation
 app.post("/api/new-user", async (req, res) => {
   try {
-    const { username } = req.body;
-    if (!username) {
-      return res.status(400).json({ message: "Username is required" });
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ message: "Both Username and password are required" });
     }
 
     let user = await User.findOne({ username });
 
     if (user) {
-      return res.status(409).json({ message: "Username Exists" });
+      return res.status(409).json({ message: "Username already exists" });
     } else {
-      user = new User({ username });
+      user = new User({ username, password });
       await user.save();
-      res
-        .status(201)
-        .json({ message: "User created and logged in", user: user });
+      res.status(201).json({
+        message: "User created and logged in",
+        user: { username: user.username },
+      }); // send username only back
     }
   } catch (error) {
     res.status(500).json({
-      message: "Error during registration process",
+      message: "Error during new user creation",
       error: error.toString(),
     });
+  }
+});
+
+app.patch("/api/userinfo", async (req, res) => {
+  const { currentUsername, newUsername, imageUrl } = req.body;
+
+  try {
+    // Find the current user by their username
+    const user = await User.findOne({ username: currentUsername });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // check if the new username is already in use
+    if (newUsername && newUsername !== currentUsername) {
+      const usernameExists = await User.findOne({ username: newUsername });
+      if (usernameExists) {
+        return res.status(409).json({ message: "Username already taken" });
+      }
+      user.username = newUsername; // Update the username
+    }
+
+    // Update imageUrl if provided
+    if (imageUrl) {
+      user.imageUrl = imageUrl;
+    }
+
+    await user.save();
+    res.status(200).json({ message: "User updated successfully", user: user });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating user info", error: error.toString() });
   }
 });
 
 //User login
 app.post("/api/login", async (req, res) => {
   try {
-    const { username } = req.body;
-    if (!username) {
-      return res.status(400).json({ message: "Username is required" });
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ message: "Both username and password are required" });
     }
 
     let user = await User.findOne({ username });
-
     if (user) {
-      res.status(200).json({ message: "Username Exists", user: user });
+      // Compares submitted password with hash that is stored
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) {
+        res.status(200).json({ message: "Login successful", user: user });
+      } else {
+        res.status(401).json({ message: "Incorrect Credentials" });
+      }
     } else {
-      res.status(404).json({ message: "Username Not Found" });
+      res.status(404).json({ message: "Username not found" });
     }
   } catch (error) {
     res
