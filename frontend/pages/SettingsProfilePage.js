@@ -19,8 +19,9 @@ const SettingsProfilePage = ({ navigation }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { setIsAuthenticated } = useAuth();
   const [userInfo, setUserInfo] = useState({ username: "", imageUrl: "" });
-  const { refreshSettings, resetRefresh } = useRefresh();
   const [refreshing, setRefreshing] = useState(false);
+  const { refreshTrigger } = useRefresh();
+  const { triggerRefresh } = useRefresh();
 
 
   const fetchUserInfo = async () => {
@@ -61,6 +62,22 @@ const SettingsProfilePage = ({ navigation }) => {
     setIsAuthenticated(false);
     navigation.navigate("LoginPage");
   };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    fetchUserInfo().then(() => setRefreshing(false));
+  }, []);
+
+  useEffect(() => {
+    fetchUserInfo();
+  }, []);
+
+  useEffect(() => {
+    if (refreshTrigger === 'SettingsProfilePage') {
+      fetchUserInfo();
+      triggerRefresh('EmptyState');
+    }
+  }, [refreshTrigger]);
 
   return (
     <ScrollView style={{ backgroundColor: isDarkMode ? "#333333" : "#FFFFFF" }}>

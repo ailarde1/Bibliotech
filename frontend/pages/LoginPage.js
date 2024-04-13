@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { View, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useAuth } from "./Authentication";
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
-import { useRefresh } from './RefreshContext';
+import { useRefresh } from "./RefreshContext";
 
 const LoginPage = ({ navigation }) => {
   const [username, setUsername] = useState("");
@@ -13,7 +13,7 @@ const LoginPage = ({ navigation }) => {
   const { triggerRefresh } = useRefresh();
 
   const storeCredentials = async (username) => {
-    await SecureStore.setItemAsync('username', username);
+    await SecureStore.setItemAsync("username", username);
   };
 
   const handleLoginPress = () => {
@@ -21,55 +21,58 @@ const LoginPage = ({ navigation }) => {
   };
 
   const handleNewUserPress = () => {
-    fetch(`${apiUrl}/new-user`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: username, password: password }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message.includes('User created')) {
-          Alert.alert("Success", "User has been added.");
-          setIsAuthenticated(true);
-          storeCredentials(username);
-          triggerRefresh();
-        } else {
-          Alert.alert("Error", data.message);
-          setIsAuthenticated(false);
-        }
-      })
-      .catch((error) => {
-        Alert.alert("Error", "An unexpected error occurred");
-      });
+    createNewUser(username, password);
   };
 
-  const loginUser = (username, password) => {
-    fetch(`${apiUrl}/login`, {
+  const createNewUser = async (username, password) => {
+    const response = await fetch(`${apiUrl}/new-user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message === 'Login successful') {
-          Alert.alert("Login Success", "You have been logged in successfully.");
-          setIsAuthenticated(true);
-          storeCredentials(username);
-          triggerRefresh();
-        } else {
-          Alert.alert("Login Error", data.message);
-          setIsAuthenticated(false);
-        }
-      })
-      .catch((error) => {
-        Alert.alert("Login Error", "An unexpected error occurred");
-      });
+    });
+
+    const data = await response.json();
+
+    if (data.message.includes("User created")) {
+      Alert.alert("Success", "User has been added.");
+      await storeCredentials(username);
+      setIsAuthenticated(true);
+      triggerRefresh("BookshelfPage");
+      triggerRefresh("SettingsProfilePage");
+    } else {
+      Alert.alert("Error", data.message);
+      setIsAuthenticated(false);
+    }
+  };
+
+  const loginUser = async (username, password) => {
+    const response = await fetch(`${apiUrl}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await response.json();
+
+    if (data.message === "Login successful") {
+      Alert.alert("Login Success", "You have been logged in successfully.");
+      await storeCredentials(username);
+      setIsAuthenticated(true);
+      triggerRefresh("BookshelfPage");
+      triggerRefresh("SettingsProfilePage");
+    } else {
+      Alert.alert("Login Error", data.message);
+      setIsAuthenticated(false);
+    }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.buttons}>
-        <Button title="Test User 1" onPress={() => loginUser('Martyn', 'password1')} />
+        <Button
+          title="Test User 1"
+          onPress={() => loginUser("Martyn", "password1")}
+        />
       </View>
       <TextInput
         style={styles.input}
@@ -107,8 +110,8 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   buttons: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
 

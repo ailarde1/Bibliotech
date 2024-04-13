@@ -207,7 +207,7 @@ function NewBookDetailsPage({ route, navigation }) {
         throw new Error("Failed to add book");
       } else {
         alert("Book added to library");
-        triggerRefresh();
+        triggerRefresh('BookshelfPage');
         navigation.goBack(); // Sends them back to the search page
       }
     } catch (error) {

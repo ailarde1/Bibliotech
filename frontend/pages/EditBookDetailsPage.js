@@ -20,8 +20,6 @@ const EditBookDetailsPage = ({ route, navigation }) => {
   // get the book object passed through navigation
   const { book } = route.params;
 
-  const [refreshing, setRefreshing] = useState(false);
-  const { refreshBookshelf, resetRefresh } = useRefresh();
   const { triggerRefresh } = useRefresh();
 
   // State for each book detail
@@ -80,7 +78,7 @@ const EditBookDetailsPage = ({ route, navigation }) => {
           text: "OK",
           onPress: () => {
             navigation.popToTop();
-            triggerRefresh();
+            triggerRefresh('BookshelfPage');
           },
         },
       ]);
@@ -111,7 +109,7 @@ const EditBookDetailsPage = ({ route, navigation }) => {
           text: "OK",
           onPress: () => {
             navigation.popToTop();
-            triggerRefresh();
+            triggerRefresh('BookshelfPage');
           },
         },
       ]);
@@ -181,29 +179,6 @@ const EditBookDetailsPage = ({ route, navigation }) => {
       ),
     });
   }, [navigation]);
-
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    SecureStore.getItemAsync("username").then((username) => {
-      if (username) {
-        console.log("Username found:", username);
-      } else {
-        console.error("Username not found");
-      }
-      setRefreshing(false);
-    });
-  }, []);
-
-  useEffect(() => {
-    onRefresh(); // Call to load initially
-  }, [onRefresh]);
-
-  useEffect(() => {
-    if (refreshBookshelf) {
-      onRefresh(); // React to a global refresh action
-      resetRefresh(); // Reset the global refresh state
-    }
-  }, [refreshBookshelf, resetRefresh, onRefresh]);
 
   return (
     <ScrollView

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import {
   ScrollView,
   View,
@@ -9,12 +9,13 @@ import {
   Platform,
 } from "react-native";
 
+
 const BookDetailsPage = ({ route, navigation }) => {
   const { book } = route.params;
 
   const navigateToEdit = () => {
     navigation.navigate("EditBookDetails", { book });
-  };
+  }
 
   return (
     <ScrollView

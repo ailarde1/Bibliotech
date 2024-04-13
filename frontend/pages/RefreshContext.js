@@ -1,25 +1,27 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-
-
-//needed for auto refreshing pages
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { DeviceEventEmitter } from 'react-native';
 
 const RefreshContext = createContext();
 
 export const useRefresh = () => useContext(RefreshContext);
 
 export const RefreshProvider = ({ children }) => {
-  const [refreshBookshelf, setRefreshBookshelf] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(null);
 
-  const triggerRefresh = useCallback(() => {
-    setRefreshBookshelf(true);
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('refreshEvent', (event) => {
+      setRefreshTrigger(event);
+    });
+
+    return () => subscription.remove();
   }, []);
 
-  const resetRefresh = useCallback(() => {
-    setRefreshBookshelf(false);
-  }, []);
+  const triggerRefresh = (page) => {
+    DeviceEventEmitter.emit('refreshEvent', page);
+  };
 
   return (
-    <RefreshContext.Provider value={{ refreshBookshelf, triggerRefresh, resetRefresh }}>
+    <RefreshContext.Provider value={{ refreshTrigger, triggerRefresh }}>
       {children}
     </RefreshContext.Provider>
   );

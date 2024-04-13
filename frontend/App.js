@@ -26,8 +26,6 @@ import { AuthProvider, useAuth } from './pages/Authentication';
 const Tab = createBottomTabNavigator();
 const BookStack = createStackNavigator();
 const SearchStack = createStackNavigator();
-const Login = createStackNavigator();
-global.refreshBookshelf = 'false';
 
 //Stacks of pages
 function SearchStackScreen() {
@@ -88,7 +86,7 @@ const MainApp = () => {
         <Tab.Screen name="Search" component={SearchStackScreen} />
         <Tab.Screen name="Bookshelf" component={BookStackScreen} options={{headerShown: false }} />
         <Tab.Screen name="Data" component={DataPage} />
-        <Tab.Screen name="Settings" component={SettingsStackScreen} options={{headerShown: false }}/>
+        <Tab.Screen name="SettingsProfile" component={SettingsStackScreen} options={{headerShown: false }}/>
     </Tab.Navigator>
   );
 };

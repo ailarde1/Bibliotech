@@ -18,12 +18,13 @@ import { useRefresh } from "./RefreshContext";
 
 const EditProfile = ({ route, navigation }) => {
   const { userInfo } = route.params;
-  const { triggerRefresh } = useRefresh();
   const [uploadedImageUrl, setUploadedImageUrl] = useState(userInfo.imageUrl); //The local URI of the Image user uploaded
   const [username, setUsername] = useState(userInfo.username);
   const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
-  const [refreshing, setRefreshing] = useState(false);
-
+  const { triggerRefresh } = useRefresh();
+  const storeCredentials = async (username) => {
+    await SecureStore.setItemAsync('username', username);
+  };
 
   const axiosInstance = axios.create({
     baseURL: apiUrl,
@@ -117,8 +118,9 @@ const EditProfile = ({ route, navigation }) => {
       });
       if (response.status === 200) {
         alert("Profile updated successfully");
-        triggerRefresh();
+        storeCredentials(username);
         navigation.goBack();
+        triggerRefresh('SettingsProfilePage');
       } else {
         alert("Failed to update profile");
       }

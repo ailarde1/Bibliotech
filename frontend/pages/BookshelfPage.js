@@ -17,10 +17,12 @@ const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 const BookshelfPage = ({ navigation }) => {
   const [books, setBooks] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
   const [selection, setSelection] = useState("all books");
   const [viewStyle, setViewStyle] = useState("list");
-  const { refreshBookshelf, resetRefresh } = useRefresh();
+
+  const [refreshing, setRefreshing] = useState(false);
+  const { refreshTrigger } = useRefresh();
+  const { triggerRefresh } = useRefresh();
 
   const fetchBooks = async () => {
     const username = await SecureStore.getItemAsync("username");
@@ -47,39 +49,21 @@ const BookshelfPage = ({ navigation }) => {
     }
   };
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <SegmentedControl
-          values={["List", "Shelf"]}
-          selectedIndex={["list", "shelf"].indexOf(viewStyle)}
-          onChange={(event) => {
-            const newIndex = event.nativeEvent.selectedSegmentIndex;
-            const newViewStyle = ["list", "shelf"][newIndex];
-            setViewStyle(newViewStyle);
-          }}
-          style={{ width: 120, height: 30, marginRight: 10 }}
-        />
-      ),
-    });
-  }, [navigation, viewStyle]);
-
-
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    fetchBooks().finally(() => setRefreshing(false));
+    fetchBooks().then(() => setRefreshing(false));
   }, []);
 
   useEffect(() => {
-    onRefresh(); // Call to load initially
-  }, [onRefresh]);
+    fetchBooks();
+  }, []);
 
   useEffect(() => {
-    if (refreshBookshelf) {
-      onRefresh(); // React to a global refresh action
-      resetRefresh(); // Reset the global refresh state
+    if (refreshTrigger === 'BookshelfPage') {
+      fetchBooks();
+      triggerRefresh('EmptyState');
     }
-  }, [refreshBookshelf, resetRefresh, onRefresh]);
+  }, [refreshTrigger]);
 
   // Filter books based on selection before rendering
   const filteredBooks = books.filter((book) => {
@@ -89,11 +73,13 @@ const BookshelfPage = ({ navigation }) => {
 
   const renderBookItem = ({ item }) => (
     <TouchableOpacity
-      style={viewStyle === 'list' ? styles.bookItem : styles.bookShelfItem}
+      style={viewStyle === "list" ? styles.bookItem : styles.bookShelfItem}
       onPress={() => navigation.navigate("BookDetails", { book: item })}
     >
       <Image source={{ uri: item.thumbnail }} style={styles.bookImage} />
-      {viewStyle === 'list' && <Text style={styles.bookTitle}>{item.title}</Text>}
+      {viewStyle === "list" && (
+        <Text style={styles.bookTitle}>{item.title}</Text>
+      )}
     </TouchableOpacity>
   );
 
@@ -101,32 +87,29 @@ const BookshelfPage = ({ navigation }) => {
     <View style={styles.container}>
       <SegmentedControl
         style={styles.segmentControl}
-        values={['All Books', 'Read', 'Not Read']}
-        selectedIndex={['all books', 'read', 'not read'].indexOf(selection)}
+        values={["All Books", "Read", "Not Read"]}
+        selectedIndex={["all books", "read", "not read"].indexOf(selection)}
         onChange={(event) => {
           const newIndex = event.nativeEvent.selectedSegmentIndex;
-          const newSelection = ['all books', 'read', 'not read'][newIndex];
+          const newSelection = ["all books", "read", "not read"][newIndex];
           setSelection(newSelection);
         }}
       />
-      <FlatList 
+      <FlatList
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollView}
         data={filteredBooks}
         keyExtractor={(item) => item._id.toString()}
         renderItem={renderBookItem}
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        key={viewStyle === 'shelf' ? 'shelf' : 'list'}
-        numColumns={viewStyle === 'shelf' ? 3 : 1}
+        key={viewStyle === "shelf" ? "shelf" : "list"}
+        numColumns={viewStyle === "shelf" ? 3 : 1}
       />
     </View>
   );
-      }
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -159,7 +142,7 @@ const styles = StyleSheet.create({
     flex: 1 / 3, // three books per row in shelf view
     alignItems: "center",
     marginBottom: 10,
-  }
+  },
 });
 
 export default BookshelfPage;
