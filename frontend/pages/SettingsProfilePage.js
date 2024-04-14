@@ -125,7 +125,6 @@ const SettingsProfilePage = ({ navigation }) => {
             Dark Mode
           </Text>
         </View>
-        {isDarkMode && <Text style={styles.helloText}>Hi</Text>}
       </View>
       <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
         <Text style={styles.logoutButtonText}>Logout</Text>
