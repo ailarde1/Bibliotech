@@ -99,6 +99,19 @@ const SettingsProfilePage = ({ navigation }) => {
           {userInfo.username}
         </Text>
       </View>
+      <View style={styles.settingsContainer}>
+        <View style={styles.settingsRow}>
+          <Switch value={isDarkMode} onValueChange={handleDarkModeToggle} />
+          <Text
+            style={[
+              styles.settingsText,
+              { color: isDarkMode ? "#FFFFFF" : "#333333" },
+            ]}
+          >
+            Dark Mode
+          </Text>
+        </View>
+      </View>
 
       <TouchableOpacity
         onPress={navigateToEditProfile}
@@ -113,19 +126,7 @@ const SettingsProfilePage = ({ navigation }) => {
       >
         <Text style={styles.editButtonText}>Change Password</Text>
       </TouchableOpacity>
-      <View style={styles.settingsContainer}>
-        <View style={styles.settingsRow}>
-          <Switch value={isDarkMode} onValueChange={handleDarkModeToggle} />
-          <Text
-            style={[
-              styles.settingsText,
-              { color: isDarkMode ? "#FFFFFF" : "#333333" },
-            ]}
-          >
-            Dark Mode
-          </Text>
-        </View>
-      </View>
+
       <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
