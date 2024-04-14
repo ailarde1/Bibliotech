@@ -65,6 +65,23 @@ const BookshelfPage = ({ navigation }) => {
     }
   }, [refreshTrigger]);
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <SegmentedControl
+          values={["List", "Shelf"]}
+          selectedIndex={["list", "shelf"].indexOf(viewStyle)}
+          onChange={(event) => {
+            const newIndex = event.nativeEvent.selectedSegmentIndex;
+            const newViewStyle = ["list", "shelf"][newIndex];
+            setViewStyle(newViewStyle);
+          }}
+          style={{ width: 120, height: 30, marginRight: 10 }}
+        />
+      ),
+    });
+  }, [navigation, viewStyle]);
+
   // Filter books based on selection before rendering
   const filteredBooks = books.filter((book) => {
     if (selection === "all books") return true;

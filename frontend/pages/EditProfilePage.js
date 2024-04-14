@@ -140,7 +140,7 @@ const EditProfile = ({ route, navigation }) => {
           userInfo.imageUrl
             ? { uri: uploadedImageUrl }
             : require("../assets/NoUserImage.png")
-        } //Failure to find image, or if no image is set uses local png.
+        } // Failure to find image, or if no image is set uses local png.
       />
       <TouchableOpacity onPress={pickImage} style={styles.CustomCoverLink}>
         <Text style={styles.CustomCoverLinkText}>Upload Custom Image</Text>

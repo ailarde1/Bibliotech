@@ -402,4 +402,118 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+app.get("/api/friends", async (req, res) => {
+  const { username } = req.query;
+
+  try {
+    const user = await User.findOne({ username }).populate('friends', 'username imageUrl');
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ friends: user.friends });
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving friends", error: error.toString() });
+  }
+});
+
+app.get("/api/friends/requests", async (req, res) => {
+  const { username } = req.query;
+
+  try {
+    const user = await User.findOne({ username }).populate('requestsReceived', 'username imageUrl');
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ requests: user.requestsReceived });
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving friend requests", error: error.toString() });
+  }
+});
+
+app.post("/api/friends/accept", async (req, res) => {
+  const { username, requesterId } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+    const requester = await User.findById(requesterId);
+
+    if (!user || !requester) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.friends.push(requester._id);
+    user.requestsReceived.pull(requester._id);
+    requester.friends.push(user._id);
+    requester.requestsSent.pull(user._id);
+
+    await user.save();
+    await requester.save();
+
+    res.json({ message: "Friend request accepted", friend: { username: requester.username, imageUrl: requester.imageUrl } });
+  } catch (error) {
+    res.status(500).json({ message: "Error accepting friend request", error: error.toString() });
+  }
+});
+
+app.post("/api/friends/decline", async (req, res) => {
+  const { username, requesterId } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.requestsReceived.pull(requesterId);
+    await user.save();
+
+    res.json({ message: "Friend request declined" });
+  } catch (error) {
+    res.status(500).json({ message: "Error declining friend request", error: error.toString() });
+  }
+});
+
+app.get("/api/users/search", async (req, res) => {
+  const { search } = req.query;
+
+  try {
+    const users = await User.find({ username: new RegExp(search, 'i') }).select('username imageUrl');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Error searching for users", error: error.toString() });
+  }
+});
+
+app.post("/api/friends/send-request", async (req, res) => {
+  const { fromUsername, toUsername } = req.body;
+
+  try {
+    const fromUser = await User.findOne({ username: fromUsername });
+    const toUser = await User.findOne({ username: toUsername });
+
+    if (!fromUser || !toUser) {
+      return res.status(404).json({ message: "One or both users not found" });
+    }
+
+    if (toUser.requestsReceived.includes(fromUser._id) || fromUser.friends.includes(toUser._id)) {
+      return res.status(409).json({ message: "Request already sent or users are already friends" });
+    }
+
+    toUser.requestsReceived.push(fromUser._id);
+    fromUser.requestsSent.push(toUser._id);
+
+    await toUser.save();
+    await fromUser.save();
+
+    res.status(200).json({ message: "friend request sent successfully", recipient: { username: toUser.username, imageUrl: toUser.imageUrl } });
+  } catch (error) {
+    res.status(500).json({ message: "Error sending friend request", error: error.toString() });
+  }
+});
+
+
+
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

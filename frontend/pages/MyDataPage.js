@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const ChangePasswordPage = () => {
+const MyDataPage = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Change Password Page. Should probably move functionality inside of edit Profile Page</Text>
+      <Text style={styles.text}>My Data</Text>
     </View>
   );
 };
@@ -22,4 +22,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChangePasswordPage;
+export default MyDataPage;

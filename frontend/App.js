@@ -13,7 +13,7 @@ import SearchPage from './pages/SearchPage';
 import SocialPage from './pages/SocialPage';
 import BookshelfPage from './pages/BookshelfPage';
 import BookDetailsPage from './pages/BookDetailsPage';
-import DataPage from './pages/DataPage';
+import PeopleDataStackScreen from './pages/PeopleDataStackScreen';
 import SettingsProfilePage from './pages/SettingsProfilePage';
 import NewBookDetailsPage from './pages/NewBookDetailsPage';
 import LoginPage from './pages/LoginPage';
@@ -79,13 +79,13 @@ const MainApp = () => {
     return <LoginPage />;
   }
 
-  // else shows the main app
+  // Else shows the main app
   return (
     <Tab.Navigator initialRouteName="Bookshelf">
         <Tab.Screen name="Social" component={SocialPage} />
-        <Tab.Screen name="Search" component={SearchStackScreen} />
+        <Tab.Screen name="PeopleData" component={PeopleDataStackScreen}  />
         <Tab.Screen name="Bookshelf" component={BookStackScreen} options={{headerShown: false }} />
-        <Tab.Screen name="Data" component={DataPage} />
+        <Tab.Screen name="Search" component={SearchStackScreen} />
         <Tab.Screen name="SettingsProfile" component={SettingsStackScreen} options={{headerShown: false }}/>
     </Tab.Navigator>
   );

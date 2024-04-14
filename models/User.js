@@ -5,7 +5,10 @@ const saltRounds = 10;
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  imageUrl: { type: String, default: "" },
+  imageUrl: { type: String, default: "https://awsbucketbibliotecha.s3.us-east-2.amazonaws.com/NoUserImage.png" }, //Sets default image if none is given
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Array of user friends
+  requestsSent: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Array of user friends requests sent
+  requestsReceived: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Array of user friend request received
 });
 
 // Hash password before saving the user document
