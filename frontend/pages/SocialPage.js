@@ -1,10 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTheme } from './ThemeContext';
 
 
 const SocialPage = () => {
+  const { isDarkMode } = useTheme();
+
   return (
-    <View style={styles.container}>
+    //<View style={styles.container}>
+    <View style={{ backgroundColor: isDarkMode ? '#333' : '#FFF' }}>
       <Text style={styles.text}>Social Page</Text>
     </View>
   );

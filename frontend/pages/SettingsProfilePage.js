@@ -13,10 +13,12 @@ import {
 import * as SecureStore from "expo-secure-store";
 import { useAuth } from "./Authentication";
 import { useRefresh } from "./RefreshContext";
+import { useTheme } from './ThemeContext';
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 const SettingsProfilePage = ({ navigation }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const { toggleTheme } = useTheme();
   const { setIsAuthenticated } = useAuth();
   const [userInfo, setUserInfo] = useState({ username: "", imageUrl: "" });
   const [refreshing, setRefreshing] = useState(false);
@@ -50,6 +52,7 @@ const SettingsProfilePage = ({ navigation }) => {
 
   const handleDarkModeToggle = () => {
     setIsDarkMode(!isDarkMode);
+    toggleTheme();
   };
   const navigateToEditPassword = () => {
     navigation.navigate("EditPassword");

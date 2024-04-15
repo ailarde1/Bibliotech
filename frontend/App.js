@@ -23,6 +23,8 @@ import EditProfilePage from './pages/EditProfilePage';
 
 import { AuthProvider, useAuth } from './pages/Authentication';
 
+import { ThemeProvider } from './pages/ThemeContext';
+
 const Tab = createBottomTabNavigator();
 const BookStack = createStackNavigator();
 const SearchStack = createStackNavigator();
@@ -62,9 +64,11 @@ const App = () => {
   return (
     <AuthProvider>
       <RefreshProvider>
+      <ThemeProvider>
       <NavigationContainer>
         <MainApp />
       </NavigationContainer>
+      </ThemeProvider>
       </RefreshProvider>
     </AuthProvider>
   );
