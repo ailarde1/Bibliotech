@@ -11,6 +11,7 @@ mongoose.connect('mongodb+srv://maxxgarris33:baCd578D7LCVAV16@cluster0.rlrwlhn.m
     thumbnail: String,
     description: String,
     pageCount: Number,
+    currentPage: Number,
     height: String,
     length: String,
     width: String,

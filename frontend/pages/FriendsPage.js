@@ -8,10 +8,11 @@ import {
   StyleSheet,
   Alert,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
-const FriendsPage = () => {
+const FriendsPage = ({ navigation }) => {
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -141,8 +142,13 @@ const FriendsPage = () => {
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <View style={styles.listItem}>
-            <Image source={{ uri: item.imageUrl }} style={styles.image} />
-            <Text style={styles.item}>{item.username}</Text>
+            <TouchableOpacity
+            style = {styles.listItem}
+              onPress={() => navigation.navigate("DetailedFriend", { friendUsername: item.username})}
+            >
+              <Image source={{ uri: item.imageUrl }} style={styles.image} />
+              <Text style={styles.item}>{item.username}</Text>
+            </TouchableOpacity>
           </View>
         )}
       />

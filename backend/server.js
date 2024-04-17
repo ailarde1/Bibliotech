@@ -402,6 +402,50 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+app.get("/api/reading", async (req, res) => {
+  const username = req.query.username;
+
+  try {
+    // Checks if valid username, finds corresponding userId
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    const userId = user._id;
+    
+    // Finds all books with that userId where readStatus is 'reading'
+    const books = await Book.find({ userId: userId, readStatus: 'reading' });
+    res.json(books);
+  } catch (error) {
+    res.status(500).send("Error retrieving the user's books: " + error.message);
+  }
+});
+
+app.patch("/api/updatePage", async (req, res) => {
+  const { bookId, currentPage } = req.body;
+  const pagesInt = parseInt(currentPage, 10);
+
+  if (!bookId || isNaN(pagesInt)) {
+    return res.status(400).json({ message: "Book ID and current page must be provided and current page must be a number" });
+  }
+
+  try {
+    
+    const book = await Book.findByIdAndUpdate(bookId, { currentPage: pagesInt }, { new: true });
+    
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    res.json({ message: "Page updated successfully", book: book });
+  } catch (error) {
+    console.error("Error updating page:", error);
+    res.status(500).json({ message: "Failed to update the page", error: error.toString() });
+  }
+});
+
+
+
 app.get("/api/friends", async (req, res) => {
   const { username } = req.query;
 
