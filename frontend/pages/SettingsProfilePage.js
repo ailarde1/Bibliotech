@@ -191,7 +191,6 @@ const styles = StyleSheet.create({
   ButtonText: {
     color: "#EEEEEE",
     fontSize: 18,
-    fontStyle: "bold", 
   },
 });
 
