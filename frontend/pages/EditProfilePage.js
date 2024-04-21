@@ -20,8 +20,10 @@ const EditProfile = ({ route, navigation }) => {
   const { userInfo } = route.params;
   const [uploadedImageUrl, setUploadedImageUrl] = useState(userInfo.imageUrl); //The local URI of the Image user uploaded
   const [username, setUsername] = useState(userInfo.username);
+  const [password, setPassword] = useState(''); // New state for password
   const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
   const { triggerRefresh } = useRefresh();
+
   const storeCredentials = async (username) => {
     await SecureStore.setItemAsync('username', username);
   };
@@ -29,7 +31,7 @@ const EditProfile = ({ route, navigation }) => {
   const axiosInstance = axios.create({
     baseURL: apiUrl,
   });
-  // Axios used for multiple attempts at uploading image.
+
   axiosInstance.interceptors.response.use(undefined, async (err) => {
     const config = err.config;
     if (!config.retryCount || config.retryCount < config.maxRetries) {
@@ -45,7 +47,7 @@ const EditProfile = ({ route, navigation }) => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
-      alert("You refused to allow access your photos");
+      alert("You refused to allow access to your photos");
       return;
     }
 
@@ -98,7 +100,6 @@ const EditProfile = ({ route, navigation }) => {
   const handleSaveChanges = async () => {
     let imageUrl = uploadedImageUrl;
 
-    // See if User uploaded new image
     if (uploadedImageUrl && uploadedImageUrl !== userInfo.imageUrl) {
       const uploadedUrl = await uploadImage(uploadedImageUrl);
       imageUrl = uploadedUrl || userInfo.imageUrl; // set to new url if successful
@@ -130,8 +131,6 @@ const EditProfile = ({ route, navigation }) => {
     }
   };
 
-
-
   return (
     <View style={styles.profileContainer}>
       <Image
@@ -140,7 +139,7 @@ const EditProfile = ({ route, navigation }) => {
           userInfo.imageUrl
             ? { uri: uploadedImageUrl }
             : require("../assets/NoUserImage.png")
-        } // Failure to find image, or if no image is set uses local png.
+        }
       />
       <TouchableOpacity onPress={pickImage} style={styles.CustomCoverLink}>
         <Text style={styles.CustomCoverLinkText}>Upload Custom Image</Text>
@@ -151,6 +150,15 @@ const EditProfile = ({ route, navigation }) => {
         style={styles.input}
         onChangeText={setUsername}
         value={username}
+      />
+
+      <Text style={styles.label}>Password</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={setPassword}
+        value={password}
+        secureTextEntry={true}
+        placeholder="Enter your password"
       />
 
       <Button style={styles.CustomCoverLink} title="Save Changes" onPress={handleSaveChanges} />
@@ -170,18 +178,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-    input: {
-      alignSelf: "stretch",
-      borderWidth: 1,
-      borderColor: "gray",
-      marginTop: 5,
-      marginBottom: 15,
-      marginHorizontal: 10,
-      padding: 10,
-      fontSize: 18,
-      borderRadius: 8,
-      backgroundColor: "white",
-      fontSize: 16,
+  input: {
+    alignSelf: "stretch",
+    borderWidth: 1,
+    borderColor: "gray",
+    marginTop: 5,
+    marginBottom: 15,
+    marginHorizontal: 10,
+    padding: 10,
+    fontSize: 18,
+    borderRadius: 8,
+    backgroundColor: "white",
+    fontSize: 16,
   },
   profileContainer: {
     alignItems: "center",
@@ -201,7 +209,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
 });
 
 export default EditProfile;
