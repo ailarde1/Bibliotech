@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@miblanchard/react-native-slider": "^2.6.0",
+    "@react-native-community/datetimepicker": "^7.7.0",
     "@react-native-community/slider": "^4.4.2",
     "@react-native-picker/picker": "~2.6.1",
     "@react-native-segmented-control/segmented-control": "2.4.1",

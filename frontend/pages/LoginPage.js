@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet, Alert } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useAuth } from "./Authentication";
 import * as SecureStore from "expo-secure-store";
 
@@ -87,9 +87,14 @@ const LoginPage = ({ navigation }) => {
         placeholder="Enter Password"
         secureTextEntry={true} // hides the password input
       />
-      <View style={styles.buttons}>
-        <Button title="Login" onPress={handleLoginPress} />
-        <Button title="New User" onPress={handleNewUserPress} />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={handleLoginPress}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+        <View style={styles.spacer} />
+        <TouchableOpacity style={styles.button} onPress={handleNewUserPress}>
+          <Text style={styles.buttonText}>New User</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -102,16 +107,41 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
-  input: {
-    height: 40,
-    width: "100%",
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
-  },
-  buttons: {
+  buttonContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-around",
+  },
+  button: {
+    backgroundColor: "#407BFF",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    elevation: 3,  // adds shadow for Android
+    shadowOpacity: 0.3,  // adds shadow for iOS
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 3 },
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginHorizontal: 10,
+  },
+  spacer: {
+    width: 20,
+  },
+  input: {
+    alignSelf: "stretch",
+    borderWidth: 1,
+    borderColor: "gray",
+    marginTop: 5,
+    marginBottom: 15,
+    marginHorizontal: 10,
+    padding: 10,
+    fontSize: 18,
+    borderRadius: 8,
+    backgroundColor: "white",
   },
 });
 

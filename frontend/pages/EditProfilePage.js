@@ -153,7 +153,7 @@ const EditProfile = ({ route, navigation }) => {
         value={username}
       />
 
-      <Button title="Save Changes" onPress={handleSaveChanges} />
+      <Button style={styles.CustomCoverLink} title="Save Changes" onPress={handleSaveChanges} />
     </View>
   );
 };
@@ -170,12 +170,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-  input: {
-    width: "100%",
-    padding: 10,
-    marginVertical: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
+    input: {
+      alignSelf: "stretch",
+      borderWidth: 1,
+      borderColor: "gray",
+      marginTop: 5,
+      marginBottom: 15,
+      marginHorizontal: 10,
+      padding: 10,
+      fontSize: 18,
+      borderRadius: 8,
+      backgroundColor: "white",
+      fontSize: 16,
   },
   profileContainer: {
     alignItems: "center",
@@ -189,12 +195,13 @@ const styles = StyleSheet.create({
   CustomCoverLink: {
     backgroundColor: "#007bff",
     paddingVertical: 10,
-    marginHorizontal: 20,
+    paddingHorizontal: 9,
     marginVertical: 10,
     borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
   },
+
 });
 
 export default EditProfile;

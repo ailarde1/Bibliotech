@@ -14,7 +14,8 @@ import * as SecureStore from "expo-secure-store";
 import { useRefresh } from "./RefreshContext";
 import { Dropdown } from "react-native-element-dropdown";
 import * as ImagePicker from "expo-image-picker";
-import axios from 'axios';
+import axios from "axios";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -22,12 +23,35 @@ function NewBookDetailsPage({ route, navigation }) {
   const { book } = route.params;
   const { triggerRefresh } = useRefresh();
 
-  const [newCoverUrl, setNewCoverUrl] = useState("");  //Cover from the other API
-  const [selectedCoverUrl, setSelectedCoverUrl] = useState(book.volumeInfo.imageLinks?.thumbnail);   //The Cover that the user has selected
-  const [customCoverUrl, setCustomCoverUrl] = useState(null);   //Cover the user inputed the link for 
+  const [newCoverUrl, setNewCoverUrl] = useState(""); //Cover from the other API
+  const [selectedCoverUrl, setSelectedCoverUrl] = useState(
+    book.volumeInfo.imageLinks?.thumbnail
+  ); //The Cover that the user has selected
+  const [customCoverUrl, setCustomCoverUrl] = useState(null); //Cover the user inputed the link for
   const [uploadedImageUrl, setUploadedImageUrl] = useState(""); //The local URI of the Image user uploaded
   const [isManualUrlEnabled, setIsManualUrlEnabled] = useState(false); //The state for if URL input box should appear
-  const [showCustomCover, setShowCustomCover] = useState(false);  //State of if Image either uplaoded or linked should be displayed
+  const [showCustomCover, setShowCustomCover] = useState(false); //State of if Image either uplaoded or linked should be displayed
+
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [dateFormat, setDateFormat] = useState("date"); // 'year' or 'date'
+  const [selectedYear, setSelectedYear] = useState(
+    new Date().getFullYear().toString()
+  );
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString();
+  };
+
+  const toggleStartDatePicker = () => {
+    setShowStartDatePicker(!showStartDatePicker);
+  };
+
+  const toggleEndDatePicker = () => {
+    setShowEndDatePicker(!showEndDatePicker);
+  };
 
   // Initialize state for each editable book detail
   const [title, setTitle] = useState(book.volumeInfo.title);
@@ -61,7 +85,6 @@ function NewBookDetailsPage({ route, navigation }) {
     { label: "Custom...", value: "custom" },
   ].filter(Boolean);
 
-
   const axiosInstance = axios.create({
     baseURL: apiUrl,
   });
@@ -76,6 +99,19 @@ function NewBookDetailsPage({ route, navigation }) {
     }
     return Promise.reject(err);
   });
+
+  const renderDatePicker = (date, setDate, showPicker, setShowPicker) =>
+    showPicker && (
+      <DateTimePicker
+        value={date}
+        mode="date"
+        display="default"
+        onChange={(event, selectedDate) => {
+          setShowPicker(false);
+          setDate(selectedDate || date);
+        }}
+      />
+    );
 
   const fetchBookDetails = async () => {
     const title = book.volumeInfo.title;
@@ -144,9 +180,12 @@ function NewBookDetailsPage({ route, navigation }) {
 
   const addToLibrary = async () => {
     const username = await SecureStore.getItemAsync("username");
-  
-    let finalCoverUrl = uploadedImageUrl || selectedCoverUrl || book.volumeInfo.imageLinks.thumbnail;
-  
+
+    let finalCoverUrl =
+      uploadedImageUrl ||
+      selectedCoverUrl ||
+      book.volumeInfo.imageLinks.thumbnail;
+
     // If user uploaded an image and that is one that is selected
     if (uploadedImageUrl === selectedCoverUrl) {
       try {
@@ -175,8 +214,14 @@ function NewBookDetailsPage({ route, navigation }) {
       isbn,
       username,
       readStatus,
+      readYear: dateFormat === "year" ? selectedYear : undefined,
+      startDate: dateFormat === "date" ? startDate : undefined,
+      endDate,
       readFormat,
     };
+
+    console.log(endDate);
+    console.log(readStatus);
 
     if (readFormat === "digital") {
       bookDetails.ebookPageCount = parseInt(ebookPageCount, 10) || 0;
@@ -207,7 +252,7 @@ function NewBookDetailsPage({ route, navigation }) {
         throw new Error("Failed to add book");
       } else {
         alert("Book added to library");
-        triggerRefresh('BookshelfPage');
+        triggerRefresh("BookshelfPage");
         navigation.goBack(); // Sends them back to the search page
       }
     } catch (error) {
@@ -275,42 +320,56 @@ function NewBookDetailsPage({ route, navigation }) {
     </TouchableOpacity>
   );
 
+  const renderDateTypeButton = (format) => (
+    <TouchableOpacity
+      style={[
+        styles.statusButton,
+        dateFormat === format
+          ? styles.activeStatusButton
+          : styles.inactiveStatusButton,
+      ]}
+      onPress={() => setDateFormat(format)}
+    >
+      <Text style={styles.statusButtonText}>
+        {format.charAt(0).toUpperCase() + format.slice(1)}
+      </Text>
+    </TouchableOpacity>
+  );
 
-
-//upload Image. Had bug where first upload would always fail. Cheap solution was to retry it multiple times.
-const uploadImage = async (uri) => {
-  const formData = new FormData();
-  formData.append("file", {
-    uri: uri,
-    type: "image/jpeg",
-    name: uri.split("/").pop(),
-  });
-
-  try {
-    const response = await axiosInstance.post('/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      maxRetries: 5, //number of retries
+  //upload Image. Had bug where first upload would always fail. Cheap solution was to retry it multiple times.
+  const uploadImage = async (uri) => {
+    const formData = new FormData();
+    formData.append("file", {
+      uri: uri,
+      type: "image/jpeg",
+      name: uri.split("/").pop(),
     });
 
-    if (response.status === 200) {
-      alert("Image uploaded successfully");
-      return response.data.url;
-    } else {
-      alert("Failed to upload image");
+    try {
+      const response = await axiosInstance.post("/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        maxRetries: 5, //number of retries
+      });
+
+      if (response.status === 200) {
+        alert("Image uploaded successfully");
+        return response.data.url;
+      } else {
+        alert("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Upload failed after retries:", error);
+      alert("Error uploading image after retries");
     }
-  } catch (error) {
-    console.error("Upload failed after retries:", error);
-    alert("Error uploading image after retries");
-  }
-};
+  };
   useEffect(() => {
     fetchBookDetails(book.volumeInfo.title);
   }, [book.volumeInfo.title]);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
       <View
         style={{
           flexDirection: "row",
@@ -374,10 +433,7 @@ const uploadImage = async (uri) => {
         </View>
       </View>
 
-      <TouchableOpacity
-        onPress={pickImage}
-        style={styles.CustomCoverLink}
-      >
+      <TouchableOpacity onPress={pickImage} style={styles.CustomCoverLink}>
         <Text style={styles.CustomCoverLinkText}>Upload Custom Image</Text>
       </TouchableOpacity>
 
@@ -387,7 +443,6 @@ const uploadImage = async (uri) => {
       >
         <Text style={styles.CustomCoverLinkText}>Input Custom Cover URL</Text>
       </TouchableOpacity>
-
 
       {isManualUrlEnabled && (
         <View style={styles.urlInputContainer}>
@@ -460,7 +515,7 @@ const uploadImage = async (uri) => {
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>ISBN:</Text>
-        <TextInput style={styles.input} value={isbn} editable={false} />
+        <Text style={styles.text}>{isbn}</Text>
       </View>
 
       <View style={styles.inputContainer}>
@@ -471,6 +526,83 @@ const uploadImage = async (uri) => {
           {renderStatusButton("not read")}
         </View>
       </View>
+
+      {readStatus === "reading" && (
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Start Date:</Text>
+          <Button title="Select Start Date" onPress={toggleStartDatePicker} />
+          <Text style={styles.dateDisplay}>
+            {startDate ? formatDate(startDate) : "No date selected"}
+          </Text>
+          {renderDatePicker(
+            startDate,
+            setStartDate,
+            showStartDatePicker,
+            setShowStartDatePicker
+          )}
+        </View>
+      )}
+      {readStatus === "read" && (
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Date Format:</Text>
+          <View style={styles.statusContainer}>
+            {renderDateTypeButton("year")}
+            {renderDateTypeButton("date")}
+          </View>
+        </View>
+      )}
+      {readStatus === "read" && dateFormat === "date" && (
+        <>
+          {/* Existing date picker UI for Start Date and Finish Date */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Start Date:</Text>
+            <Button title="Select Start Date" onPress={toggleStartDatePicker} />
+            <Text style={styles.dateDisplay}>
+              {startDate ? formatDate(startDate) : "No date selected"}
+            </Text>
+            {renderDatePicker(
+              startDate,
+              setStartDate,
+              showStartDatePicker,
+              setShowStartDatePicker
+            )}
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Finish Date:</Text>
+            <Button title="Select Finish Date" onPress={toggleEndDatePicker} />
+            <Text style={styles.dateDisplay}>
+              {endDate ? formatDate(endDate) : "No date selected"}
+            </Text>
+            {renderDatePicker(
+              endDate,
+              setEndDate,
+              showEndDatePicker,
+              setShowEndDatePicker
+            )}
+          </View>
+        </>
+      )}
+
+      {readStatus === "read" && dateFormat === "year" && (
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Year Read:</Text>
+          <Dropdown
+            style={styles.dropdown}
+            placeholder="Select Year"
+            data={Array.from(
+              { length: new Date().getFullYear() - 1999 },
+              (v, k) => 2000 + k
+            ).map((year) => ({
+              label: year.toString(),
+              value: year.toString(),
+            }))}
+            labelField="label"
+            valueField="value"
+            value={selectedYear}
+            onChange={(item) => setSelectedYear(item.value)}
+          />
+        </View>
+      )}
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Read Format:</Text>
@@ -517,6 +649,8 @@ const uploadImage = async (uri) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginRight: 5,
+    marginLeft: 5,
   },
   buttonContainer: {
     marginTop: 20,
@@ -556,8 +690,10 @@ const styles = StyleSheet.create({
     height: 40,
     flex: 1,
     borderWidth: 1,
-    padding: 10,
+    padding: 5,
     fontSize: 18,
+    borderRadius: 8,
+    backgroundColor: "white",
   },
   buttonContainer: {
     marginTop: 20,
@@ -609,6 +745,16 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  dateDisplay: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: "black",
+  },
+  text:{
+    fontSize: 18,
+    color: "black",
+    marginLeft: 5,
   },
 });
 

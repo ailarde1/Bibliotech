@@ -120,18 +120,18 @@ const SettingsProfilePage = ({ navigation }) => {
         onPress={navigateToEditProfile}
         style={styles.editButton}
       >
-        <Text style={styles.editButtonText}>Edit Profile Information</Text>
+        <Text style={styles.ButtonText}>Edit Profile Information</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         onPress={navigateToEditPassword}
         style={styles.editButton}
       >
-        <Text style={styles.editButtonText}>Change Password</Text>
+        <Text style={styles.ButtonText}>Change Password</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-        <Text style={styles.logoutButtonText}>Logout</Text>
+        <Text style={styles.ButtonText}>Logout</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -188,9 +188,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#FF3B30",
     alignItems: "center",
   },
-  logoutButtonText: {
-    color: "#FFFFFF",
+  ButtonText: {
+    color: "#EEEEEE",
     fontSize: 18,
+    fontStyle: "bold", 
   },
 });
 

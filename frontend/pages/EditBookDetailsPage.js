@@ -13,6 +13,8 @@ import {
 
 import * as SecureStore from "expo-secure-store";
 import { useRefresh } from "./RefreshContext";
+import { Dropdown } from "react-native-element-dropdown";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -36,6 +38,46 @@ const EditBookDetailsPage = ({ route, navigation }) => {
   const [audioLength, setAudioLength] = useState(
     book.audioLength?.toString() || ""
   );
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [startDate, setStartDate] = useState(book.startDate ? new Date(book.startDate) : null);
+  const [endDate, setEndDate] = useState(book.endDate ? new Date(book.endDate) : null);
+  const [selectedYear, setSelectedYear] = useState(book.readYear ? book.readYear.toString() : new Date().getFullYear().toString());
+
+  // determens the date format from what information is available
+  const [dateFormat, setDateFormat] = useState(() => {
+    if (book.readYear && !book.startDate && !book.endDate) {
+      return "year";
+    } else {
+      return "date";
+    }
+  });
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString();
+  };
+
+  const toggleStartDatePicker = () => {
+    setShowStartDatePicker(!showStartDatePicker);
+  };
+
+  const toggleEndDatePicker = () => {
+    setShowEndDatePicker(!showEndDatePicker);
+  };
+
+  const renderDatePicker = (date, setDate, showPicker, setShowPicker) =>
+  showPicker && (
+    <DateTimePicker
+      value={date || new Date()}
+      mode="date"
+      display="default"
+      onChange={(event, selectedDate) => {
+        setShowPicker(false);
+        setDate(selectedDate || date);
+      }}
+    />
+  );
+
 
   // handle the submission of the edit
   const submitEdits = async () => {
@@ -150,6 +192,22 @@ const EditBookDetailsPage = ({ route, navigation }) => {
     </TouchableOpacity>
   );
 
+  const renderDateTypeButton = (format) => (
+    <TouchableOpacity
+      style={[
+        styles.statusButton,
+        dateFormat === format
+          ? styles.activeStatusButton
+          : styles.inactiveStatusButton,
+      ]}
+      onPress={() => setDateFormat(format)}
+    >
+      <Text style={styles.statusButtonText}>
+        {format.charAt(0).toUpperCase() + format.slice(1)}
+      </Text>
+    </TouchableOpacity>
+  );
+
   //header button to delete - followed by confirmation alert
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -180,8 +238,11 @@ const EditBookDetailsPage = ({ route, navigation }) => {
     });
   }, [navigation]);
 
+
+
   return (
     <ScrollView
+      showsVerticalScrollIndicator={false}
       style={styles.scrollView}
       contentContainerStyle={styles.contentContainer}
     >
@@ -216,14 +277,93 @@ const EditBookDetailsPage = ({ route, navigation }) => {
           multiline
         />
 
+        <View style={styles.inputContainer}>
         <Text style={styles.label}>Read Status:</Text>
         <View style={styles.statusContainer}>
           {renderStatusButton("read")}
           {renderStatusButton("reading")}
           {renderStatusButton("not read")}
         </View>
+      </View>
 
-        <Text style={styles.label}>Read Format:</Text>
+      {readStatus === "reading" && (
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Start Date:</Text>
+          <Button title="Select Start Date" onPress={toggleStartDatePicker} />
+          <Text style={styles.dateDisplay}>
+            {startDate ? formatDate(startDate) : "No date selected"}
+          </Text>
+          {renderDatePicker(
+            startDate,
+            setStartDate,
+            showStartDatePicker,
+            setShowStartDatePicker
+          )}
+        </View>
+      )}
+      {readStatus === "read" && (
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Date Format:</Text>
+          <View style={styles.statusContainer}>
+            {renderDateTypeButton("year")}
+            {renderDateTypeButton("date")}
+          </View>
+        </View>
+      )}
+      {readStatus === "read" && dateFormat === "date" && (
+        <>
+          {/* Existing date picker UI for Start Date and Finish Date */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Start Date:</Text>
+            <Button title="Select Start Date" onPress={toggleStartDatePicker} />
+            <Text style={styles.dateDisplay}>
+              {startDate ? formatDate(startDate) : "No date selected"}
+            </Text>
+            {renderDatePicker(
+              startDate,
+              setStartDate,
+              showStartDatePicker,
+              setShowStartDatePicker
+            )}
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Finish Date:</Text>
+            <Button title="Select Finish Date" onPress={toggleEndDatePicker} />
+            <Text style={styles.dateDisplay}>
+              {endDate ? formatDate(endDate) : "No date selected"}
+            </Text>
+            {renderDatePicker(
+              endDate,
+              setEndDate,
+              showEndDatePicker,
+              setShowEndDatePicker
+            )}
+          </View>
+        </>
+      )}
+
+      {readStatus === "read" && dateFormat === "year" && (
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Year Read:</Text>
+          <Dropdown
+            style={styles.dropdown}
+            placeholder="Select Year"
+            data={Array.from(
+              { length: new Date().getFullYear() - 1999 },
+              (v, k) => 2000 + k
+            ).map((year) => ({
+              label: year.toString(),
+              value: year.toString(),
+            }))}
+            labelField="label"
+            valueField="value"
+            value={selectedYear}
+            onChange={(item) => setSelectedYear(item.value)}
+          />
+        </View>
+      )}
+
+      <Text style={styles.label}>Read Format:</Text>
         <View style={styles.statusContainer}>
           {renderFormatButton("audio")}
           {renderFormatButton("physical")}
@@ -278,6 +418,9 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 15,
     padding: 10,
+    fontSize: 18,
+    borderRadius: 8,
+    backgroundColor: "white",
     fontSize: 16,
   },
   label: {
@@ -316,6 +459,16 @@ const styles = StyleSheet.create({
   },
   statusButtonText: {
     color: "white",
+  },
+  dropdown: {
+    height: 50,
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "gray",
+    padding: 10,
+    fontSize: 18,
+    borderRadius: 8,
+    backgroundColor: "white",
   },
 });
 

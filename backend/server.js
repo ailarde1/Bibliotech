@@ -206,6 +206,9 @@ app.post("/api/books", async (req, res) => {
     audioLength,
     ebookPageCount,
     username,
+    startDate,
+    endDate,
+    readYear,
   } = req.body;
   console.log("Received ISBN:", isbn); // Log the ISBN received
   console.log("Received username:", username); // Log the username received
@@ -224,6 +227,8 @@ app.post("/api/books", async (req, res) => {
       return res.status(409).send("ISBN already exists for the user");
     }
 
+    const fixedEndDate = readStatus === "reading" ? null : endDate ? new Date(endDate) : null;
+
     let book = new Book({
       title,
       authors,
@@ -240,6 +245,9 @@ app.post("/api/books", async (req, res) => {
       audioLength,
       ebookPageCount,
       userId,
+      startDate: startDate ? new Date(startDate) : null,
+      endDate: fixedEndDate,
+      readYear: readYear || null,
     });
 
     book = await book.save();
@@ -555,7 +563,8 @@ app.post("/api/friends/send-request", async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error sending friend request", error: error.toString() });
   }
-});
+}); 
+
 
 
 

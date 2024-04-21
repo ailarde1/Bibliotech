@@ -72,6 +72,7 @@ const MyDataPage = () => {
         loop={true}
         onIndexChanged={(index) => {
           setSliderValue(currentPageValues[index]);
+          calculateCurrentBookPagesPerDay(books[index]);
         }}
         style={styles.wrapper}
       >
@@ -95,7 +96,7 @@ const MyDataPage = () => {
               minimumTrackTintColor="#007bff"
               maximumTrackTintColor="#e9ecef"
               trackStyle={{ height: 30, width: 300, borderRadius: 0 }}
-              thumbStyle={{ height: 30, width: 5, borderRadius: 0 }} 
+              thumbStyle={{ height: 30, width: 5, borderRadius: 0 }}
             />
             <Text
               style={styles.bookDetail}
@@ -109,6 +110,15 @@ const MyDataPage = () => {
           </View>
         ))}
       </Swiper>
+      <Text style={styles.statsText}>
+        Current Year Pages/Day: {"Calculating..."}
+      </Text>
+      <Text style={styles.statsText}>
+        Last Year Pages/Day: {"Calculating..."}
+      </Text>
+      <Text style={styles.statsText}>
+        Current Book Pages/Day: {"Calculating..."}
+      </Text>
     </View>
   );
 };
@@ -145,9 +155,14 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   slider: {
-    width: 320, 
+    width: 320,
     height: 50,
     marginVertical: 20,
+  },
+  statsText: {
+    fontSize: 14,
+    color: "#333",
+    marginVertical: 5,
   },
 });
 export default MyDataPage;

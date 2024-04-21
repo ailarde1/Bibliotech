@@ -59,9 +59,9 @@ const BookshelfPage = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    if (refreshTrigger === 'BookshelfPage') {
+    if (refreshTrigger === "BookshelfPage") {
       fetchBooks();
-      triggerRefresh('EmptyState');
+      triggerRefresh("EmptyState");
     }
   }, [refreshTrigger]);
 
@@ -131,12 +131,19 @@ const BookshelfPage = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
   },
   bookItem: {
     flexDirection: "row",
-    marginBottom: 10,
+    width: "100%",
+    marginBottom: 5,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
+    elevation: 1,
+    backgroundColor: "#FAFAFA",
   },
   bookImage: {
     width: 50,
