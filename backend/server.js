@@ -15,7 +15,7 @@ const multer = require("multer");
 const { Readable } = require("stream");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-app.use(express.json());
+app.use(express.json()); 
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,

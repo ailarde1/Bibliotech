@@ -91,11 +91,11 @@ const MyDataPage = () => {
               }}
               step={1}
               thumbTintColor="#000"
-              thumbTouchSize={{ width: 40, height: 40 }} // Increase touch area
+              thumbTouchSize={{ width: 40, height: 40 }}
               minimumTrackTintColor="#007bff"
               maximumTrackTintColor="#e9ecef"
-              trackStyle={{ height: 30, width: 300, borderRadius: 0 }} // Increased track height and rounded corners
-              thumbStyle={{ height: 30, width: 5, borderRadius: 0 }} // Larger thumb with rounded shape
+              trackStyle={{ height: 30, width: 300, borderRadius: 0 }}
+              thumbStyle={{ height: 30, width: 5, borderRadius: 0 }} 
             />
             <Text
               style={styles.bookDetail}
@@ -145,8 +145,8 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   slider: {
-    width: 320, // Full width to fill the space
-    height: 50, // Increased height for visibility
+    width: 320, 
+    height: 50,
     marginVertical: 20,
   },
 });

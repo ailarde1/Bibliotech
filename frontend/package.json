@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@miblanchard/react-native-slider": "^2.6.0",
-    "@react-native-community/slider": "^4.5.2",
+    "@react-native-community/slider": "^4.4.2",
     "@react-native-picker/picker": "~2.6.1",
     "@react-native-segmented-control/segmented-control": "2.4.1",
     "@react-navigation/bottom-tabs": "^6.5.20",
@@ -20,7 +20,7 @@
     "aws-sdk": "^2.1593.0",
     "axios": "^1.6.8",
     "deprecated-react-native-prop-types": "^5.0.0",
-    "expo": "~50.0.14",
+    "expo": "^50.0.17",
     "expo-image-picker": "~14.7.1",
     "expo-secure-store": "~12.8.1",
     "expo-status-bar": "~1.11.1",

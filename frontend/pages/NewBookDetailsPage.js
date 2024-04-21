@@ -572,7 +572,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     borderRadius: 8,
     backgroundColor: "white",
-    elevation: 5,
   },
   statusContainer: {
     flexDirection: "row",
