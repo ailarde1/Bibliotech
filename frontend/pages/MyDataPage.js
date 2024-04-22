@@ -68,11 +68,12 @@ const MyDataPage = () => {
   return (
     <View style={styles.container}>
       <Swiper
-        showsButtons={true}
-        loop={true}
+        showsButtons={false}
+        loop={false}
+        showsPagination={false}
         onIndexChanged={(index) => {
           setSliderValue(currentPageValues[index]);
-          calculateCurrentBookPagesPerDay(books[index]);
+          //calculateCurrentBookPagesPerDay(books[index]);
         }}
         style={styles.wrapper}
       >
@@ -83,7 +84,7 @@ const MyDataPage = () => {
             <Slider
               style={styles.slider}
               minimumValue={1}
-              maximumValue={book.pageCount}
+              maximumValue={book.ebookPageCount || book.pageCount}
               value={currentPageValues[index]}
               onValueChange={(value) => {
                 const updatedPages = [...currentPageValues];
@@ -100,7 +101,7 @@ const MyDataPage = () => {
             />
             <Text
               style={styles.bookDetail}
-            >{`Page ${currentPageValues[index]} of ${book.pageCount}`}</Text>
+            >{`Page ${currentPageValues[index]} of ${book.ebookPageCount || book.pageCount}`}</Text>
             <Button
               title="Update"
               onPress={() =>
@@ -110,15 +111,17 @@ const MyDataPage = () => {
           </View>
         ))}
       </Swiper>
-      <Text style={styles.statsText}>
-        Current Year Pages/Day: {"Calculating..."}
-      </Text>
-      <Text style={styles.statsText}>
-        Last Year Pages/Day: {"Calculating..."}
-      </Text>
-      <Text style={styles.statsText}>
-        Current Book Pages/Day: {"Calculating..."}
-      </Text>
+      <View style={styles.stats}>
+        <Text style={styles.statsText}>
+          Current Year Pages/Day: {"Calculating..."}
+        </Text>
+        <Text style={styles.statsText}>
+          Last Year Pages/Day: {"Calculating..."}
+        </Text>
+        <Text style={styles.statsText}>
+          Current Book Pages/Day: {"Calculating..."}
+        </Text>
+      </View>
     </View>
   );
 };
@@ -137,6 +140,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     paddingTop: 10,
+    backgroundColor: "#FFF",
   },
   image: {
     width: 150,
@@ -160,9 +164,16 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   statsText: {
-    fontSize: 14,
+    fontSize: 18,
     color: "#333",
-    marginVertical: 5,
+    marginVertical: 10,
+    marginBottom: 0,
+    textAlign: "center",
+  },
+  stats: {
+    flex: .6,
+    height: "100%",
+    width: "100%",
   },
 });
 export default MyDataPage;
