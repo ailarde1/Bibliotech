@@ -79,10 +79,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   input: {
-    height: 40,
-    marginBottom: 12,
+    alignSelf: "stretch",
     borderWidth: 1,
+    borderColor: "gray",
+    marginTop: 5,
+    marginBottom: 15,
+    marginHorizontal: 10,
     padding: 10,
+    fontSize: 18,
+    borderRadius: 8,
+    backgroundColor: "white",
+    fontSize: 16,
+    
   },
   resultsContainer: {
     marginBottom: 40,
