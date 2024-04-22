@@ -20,12 +20,16 @@ const EditProfile = ({ route, navigation }) => {
   const { userInfo } = route.params;
   const [uploadedImageUrl, setUploadedImageUrl] = useState(userInfo.imageUrl); //The local URI of the Image user uploaded
   const [username, setUsername] = useState(userInfo.username);
-  const [password, setPassword] = useState(''); // New state for password
+  const [password, setPassword] = useState(userInfo.password); // New state for password
   const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
   const { triggerRefresh } = useRefresh();
 
   const storeCredentials = async (username) => {
     await SecureStore.setItemAsync('username', username);
+  };
+
+  const storeCredentials2 = async (password) => {
+    await SecureStore.setItemAsync('password', password);
   };
 
   const axiosInstance = axios.create({
@@ -108,6 +112,8 @@ const EditProfile = ({ route, navigation }) => {
     const updatedUserInfo = {
       currentUsername: userInfo.username,
       newUsername: username,
+      currentPassword: userInfo.password,
+      newPassword: password,
       imageUrl: imageUrl,
     };
 
@@ -120,6 +126,7 @@ const EditProfile = ({ route, navigation }) => {
       if (response.status === 200) {
         alert("Profile updated successfully");
         storeCredentials(username);
+        storeCredentials2(password)
         navigation.goBack();
         triggerRefresh('SettingsProfilePage');
       } else {
