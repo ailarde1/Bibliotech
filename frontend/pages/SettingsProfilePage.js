@@ -54,9 +54,6 @@ const SettingsProfilePage = ({ navigation }) => {
     setIsDarkMode(!isDarkMode);
     toggleTheme();
   };
-  const navigateToEditPassword = () => {
-    navigation.navigate("EditPassword");
-  };
   const navigateToEditProfile = () => {
     navigation.navigate("EditProfile", { userInfo: userInfo });
   };
@@ -91,7 +88,7 @@ const SettingsProfilePage = ({ navigation }) => {
             userInfo.imageUrl
               ? { uri: userInfo.imageUrl }
               : require("../assets/NoUserImage.png")
-          } //Failure to find image, or if no image is set uses local png.
+          }
         />
         <Text
           style={[
@@ -121,13 +118,6 @@ const SettingsProfilePage = ({ navigation }) => {
         style={styles.editButton}
       >
         <Text style={styles.ButtonText}>Edit Profile Information</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={navigateToEditPassword}
-        style={styles.editButton}
-      >
-        <Text style={styles.ButtonText}>Change Password</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
