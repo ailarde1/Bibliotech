@@ -349,7 +349,7 @@ app.post("/api/new-user", async (req, res) => {
 });
 
 app.patch("/api/userinfo", async (req, res) => {
-  const { currentUsername, newUsername, imageUrl } = req.body;
+  const { currentUsername, newUsername, imageUrl, newPassword } = req.body;
 
   try {
     // Find the current user by their username
@@ -358,7 +358,7 @@ app.patch("/api/userinfo", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // check if the new username is already in use
+    // Check if the new username is already in use
     if (newUsername && newUsername !== currentUsername) {
       const usernameExists = await User.findOne({ username: newUsername });
       if (usernameExists) {
@@ -370,6 +370,12 @@ app.patch("/api/userinfo", async (req, res) => {
     // Update imageUrl if provided
     if (imageUrl) {
       user.imageUrl = imageUrl;
+    }
+
+    // Hash and update the new password if provided
+    if (newPassword) {
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+      user.password = hashedPassword;
     }
 
     await user.save();

@@ -103,30 +103,30 @@ const EditProfile = ({ route, navigation }) => {
 
   const handleSaveChanges = async () => {
     let imageUrl = uploadedImageUrl;
-
+  
     if (uploadedImageUrl && uploadedImageUrl !== userInfo.imageUrl) {
       const uploadedUrl = await uploadImage(uploadedImageUrl);
-      imageUrl = uploadedUrl || userInfo.imageUrl; // set to new url if successful
+      imageUrl = uploadedUrl || userInfo.imageUrl; // Set to new URL if successful
     }
-
+  
     const updatedUserInfo = {
       currentUsername: userInfo.username,
       newUsername: username,
-      currentPassword: userInfo.password,
-      newPassword: password,
+      newPassword: password, // Include the new password field
       imageUrl: imageUrl,
     };
-
+  
     try {
       const response = await axiosInstance.patch("/userinfo", updatedUserInfo, {
         headers: {
           "Content-Type": "application/json",
         },
       });
+  
       if (response.status === 200) {
         alert("Profile updated successfully");
         storeCredentials(username);
-        storeCredentials2(password)
+        storeCredentials2(password);
         navigation.goBack();
         triggerRefresh('SettingsProfilePage');
       } else {
@@ -136,7 +136,7 @@ const EditProfile = ({ route, navigation }) => {
       console.error("Error updating user info:", error);
       alert("Error updating profile");
     }
-  };
+  };  
 
   return (
     <View style={styles.profileContainer}>
