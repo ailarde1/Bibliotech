@@ -374,8 +374,7 @@ app.patch("/api/userinfo", async (req, res) => {
 
     // Hash and update the new password if provided
     if (newPassword) {
-      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-      user.password = hashedPassword;
+      user.password = newPassword;
     }
 
     await user.save();
