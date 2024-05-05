@@ -218,6 +218,7 @@ function NewBookDetailsPage({ route, navigation }) {
       startDate: dateFormat === "date" ? startDate : undefined,
       endDate,
       readFormat,
+      dateFormat,
     };
 
     console.log(endDate);

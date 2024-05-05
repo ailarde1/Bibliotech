@@ -10,13 +10,24 @@ const MyDataPage = () => {
   const [books, setBooks] = useState([]);
   const [sliderValue, setSliderValue] = useState(0);
   const [currentPageValues, setCurrentPageValues] = useState([]);
+  const [currentYearPagesPerDay, setCurrentYearPagesPerDay] = useState("Calculating...");
+  const [lastYearPagesPerDay, setLastYearPagesPerDay] = useState("Calculating...");
+  const [currentYearTotalPages, setCurrentYearTotalPages] = useState("Calculating...");
+  const [lastYearTotalPages, setLastYearTotalPages] = useState("Calculating...");
 
   useEffect(() => {
-    fetchBooks();
+    const getUsernameAndFetchData = async () => {
+      const username = await SecureStore.getItemAsync("username");
+      if (!username) {
+        console.error("Username not found");
+        return;
+      }
+      fetchBooks(username);
+      fetchPagesPerYearData(username);
+    };
+    
+    getUsernameAndFetchData();
   }, []);
-  state = {
-    value: 0.2,
-  };
 
   const fetchBooks = async () => {
     const username = await SecureStore.getItemAsync("username");
@@ -63,6 +74,36 @@ const MyDataPage = () => {
     } catch (error) {
       console.error("Error updating page:", error);
     }
+  };
+
+  const fetchPagesPerYearData = async (username) => {
+    const currentYear = new Date().getFullYear();
+    const lastYear = currentYear - 1;
+    try {
+      const [currentYearResponse, lastYearResponse] = await Promise.all([
+        fetch(`${apiUrl}/pages-read/${currentYear}?username=${encodeURIComponent(username)}`),
+        fetch(`${apiUrl}/pages-read/${lastYear}?username=${encodeURIComponent(username)}`)
+      ]);
+      const currentYearData = await currentYearResponse.json();
+      const lastYearData = await lastYearResponse.json();
+      if (currentYearResponse.ok && lastYearResponse.ok) {
+        setCurrentYearTotalPages(currentYearData.totalPages);
+        setLastYearTotalPages(lastYearData.totalPages);
+  
+        const currentYearDays = isLeapYear(currentYear) ? 366 : 365;
+        const lastYearDays = isLeapYear(lastYear) ? 366 : 365;
+        setCurrentYearPagesPerDay((currentYearData.totalPages / currentYearDays).toFixed(2));
+        setLastYearPagesPerDay((lastYearData.totalPages / lastYearDays).toFixed(2));
+      } else {
+        throw new Error("Unable to fetch year data");
+      }
+    } catch (error) {
+      console.error("Error fetching year data:", error);
+    }
+  };
+
+  const isLeapYear = (year) => {
+    return ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
   };
 
   return (
@@ -113,13 +154,19 @@ const MyDataPage = () => {
       </Swiper>
       <View style={styles.stats}>
         <Text style={styles.statsText}>
-          Current Year Pages/Day: {"Calculating..."}
-        </Text>
-        <Text style={styles.statsText}>
-          Last Year Pages/Day: {"Calculating..."}
-        </Text>
-        <Text style={styles.statsText}>
           Current Book Pages/Day: {"Calculating..."}
+        </Text>
+        <Text style={styles.statsText}>
+          Current Year Total Pages: {currentYearTotalPages}
+        </Text>
+        <Text style={styles.statsText}>
+          Last Year Total Pages: {lastYearTotalPages}
+        </Text>
+        <Text style={styles.statsText}>
+          Current Year Pages/Day: {currentYearPagesPerDay}
+        </Text>
+        <Text style={styles.statsText}>
+          Last Year Pages/Day: {lastYearPagesPerDay}
         </Text>
       </View>
     </View>

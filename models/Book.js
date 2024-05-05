@@ -40,6 +40,11 @@ const bookSchema = new mongoose.Schema({
     type: Number,
     required: false, //optional
   },
+  dateFormat: {
+    type: String,
+    required: true,
+    enum: ["date", "year"], // Ensures only valid status set
+  }, 
   startDate: { type: Date, default: null },
   endDate: { type: Date, default: null },
   readYear: { type: Number, default: null },
