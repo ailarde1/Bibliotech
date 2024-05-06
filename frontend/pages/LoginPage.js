@@ -85,7 +85,7 @@ const LoginPage = ({ navigation }) => {
         onChangeText={setPassword}
         value={password}
         placeholder="Enter Password"
-        secureTextEntry={true} // hides the password input
+        secureTextEntry={true} // Hides the password input
       />
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleLoginPress}>

@@ -82,7 +82,7 @@ const BookshelfPage = ({ navigation }) => {
     });
   }, [navigation, viewStyle]);
 
-  // Filter books based on selection before rendering
+  // Filter books based on selection before displaying
   const filteredBooks = books.filter((book) => {
     if (selection === "all books") return true;
     return book.readStatus === selection;

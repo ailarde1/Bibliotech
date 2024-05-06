@@ -18,7 +18,6 @@ import SettingsProfilePage from './pages/SettingsProfilePage';
 import NewBookDetailsPage from './pages/NewBookDetailsPage';
 import LoginPage from './pages/LoginPage';
 import EditBookDetailsPage from './pages/EditBookDetailsPage';
-import ChangePasswordPage from './pages/ChangePasswordPage';
 import EditProfilePage from './pages/EditProfilePage';
 
 import { AuthProvider, useAuth } from './pages/Authentication';
@@ -54,7 +53,6 @@ const SettingsStackScreen = () => {
     <BookStack.Navigator>
       <BookStack.Screen name="Settings" component={SettingsProfilePage}/>
       <BookStack.Screen name="EditProfile" component={EditProfilePage}/>
-      <BookStack.Screen name="EditPassword" component={ChangePasswordPage}/>
       <BookStack.Screen name="LoginPage" component={LoginPage}/>
     </BookStack.Navigator>
   );

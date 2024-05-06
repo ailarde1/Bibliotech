@@ -85,18 +85,18 @@ const EditBookDetailsPage = ({ route, navigation }) => {
 
     const bookDetails = {
       title,
-      authors: authors.split(", "), // Assuming you want to convert back to array
+      authors: authors.split(", "),
       publishedDate,
-      thumbnail: book.thumbnail, // Corrected path for thumbnail
+      thumbnail: book.thumbnail,
       description,
-      pageCount: parseInt(pageCount, 10) || 0, // Ensure pageCount is sent as a number, safely
-      isbn: book.isbn, // Assuming isbn is directly a property of book
+      pageCount: parseInt(pageCount, 10) || 0, // Ensure pageCount is sent as a number
+      isbn: book.isbn,
       username,
       readStatus,
       readFormat,
     };
 
-    // Conditionally add ebookPageCount or audioLength
+    // Condition for adding ebookPageCount or audioLength
     if (readFormat === "digital") {
       bookDetails.ebookPageCount = parseInt(ebookPageCount, 10) || 0;
     } else if (readFormat === "audio") {
@@ -312,7 +312,6 @@ const EditBookDetailsPage = ({ route, navigation }) => {
       )}
       {readStatus === "read" && dateFormat === "date" && (
         <>
-          {/* Existing date picker UI for Start Date and Finish Date */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Start Date:</Text>
             <Button title="Select Start Date" onPress={toggleStartDatePicker} />

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, StyleSheet, Image } from "react-native";
+import { View, Text, RefreshControl, ScrollView, Button, StyleSheet, Image } from "react-native";
 import Swiper from "react-native-swiper";
 import { Slider } from "@miblanchard/react-native-slider";
+import { useRefresh } from "./RefreshContext";
 import * as SecureStore from "expo-secure-store";
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -14,6 +15,9 @@ const MyDataPage = () => {
   const [lastYearPagesPerDay, setLastYearPagesPerDay] = useState("Calculating...");
   const [currentYearTotalPages, setCurrentYearTotalPages] = useState("Calculating...");
   const [lastYearTotalPages, setLastYearTotalPages] = useState("Calculating...");
+  const [refreshing, setRefreshing] = useState(false);
+  const { refreshTrigger } = useRefresh();
+  const { triggerRefresh } = useRefresh();
 
   useEffect(() => {
     const getUsernameAndFetchData = async () => {
@@ -58,6 +62,24 @@ const MyDataPage = () => {
       console.error("Error fetching books:", error);
     }
   };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    const getUsernameAndFetchData = async () => {
+      const username = await SecureStore.getItemAsync("username");
+      if (!username) {
+        console.error("Username not found");
+        return;
+      }
+      fetchBooks(username);
+      fetchPagesPerYearData(username);
+    };
+    
+    getUsernameAndFetchData().then(() => setRefreshing(false));
+  }, []);
+
+
+
 
   const updateCurrentPage = async (bookId, page) => {
     try {
@@ -108,6 +130,11 @@ const MyDataPage = () => {
 
   return (
     <View style={styles.container}>
+    <ScrollView
+        contentContainerStyle={styles.scrollView}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
       <Swiper
         showsButtons={false}
         loop={false}
@@ -169,6 +196,7 @@ const MyDataPage = () => {
           Last Year Pages/Day: {lastYearPagesPerDay}
         </Text>
       </View>
+      </ScrollView>
     </View>
   );
 };

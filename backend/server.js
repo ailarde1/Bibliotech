@@ -47,12 +47,12 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
     });
 
     parallelUploads3.on("httpUploadProgress", (progress) => {
-      console.log(progress); // Log upload progress
+      console.log(progress); // logs upload progress
     });
 
     await parallelUploads3.done();
 
-    // Construct URL of the uploaded file
+    // Constructs URL of the uploaded file
     const uploadedFileUrl = `https://${uploadParams.Bucket}.s3.${
       process.env.AWS_REGION
     }.amazonaws.com/${encodeURIComponent(uploadParams.Key)}`;
@@ -68,7 +68,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
 app.use(express.json());
 app.use(cors());
 
-//Search endpoint. Currently for Google Api.
+//Search endpoint for Google Api.
 app.get("/api/search", async (req, res) => {
   try {
     const { query } = req.query;
@@ -144,7 +144,6 @@ app.get("/api/books/info/title/:title", async (req, res) => {
 });
 
 //Get books endpoint
-
 app.get("/api/books", async (req, res) => {
   const username = req.query.username;
 
@@ -155,7 +154,7 @@ app.get("/api/books", async (req, res) => {
       return res.status(404).send("User not found");
     }
     const userId = user._id;
-    // with userId finds all books with that userId
+    // Finds all books with that userId
     const books = await Book.find({ userId: userId });
     res.json(books);
   } catch (error) {
@@ -164,7 +163,7 @@ app.get("/api/books", async (req, res) => {
 });
 
 app.get("/api/userinfo", async (req, res) => {
-  const username = req.query.username; // Receive username from query parameters
+  const username = req.query.username; // Receive username
 
   try {
     // Find user by username
@@ -265,7 +264,7 @@ app.patch("/api/books/:isbn", async (req, res) => {
   console.log("Received ISBN:", isbn); // Log the ISBN received
   console.log("Received username:", username); // Log the username received
   try {
-    // find the user to make sure they exist and get the userId
+    // Find the user to make sure they exist and get the userId
 
     const user = await User.findOne({ username: username });
     if (!user) {
@@ -273,7 +272,7 @@ app.patch("/api/books/:isbn", async (req, res) => {
     }
     const userId = user._id;
 
-    // find the book by ISBN and userId and update it with the new details
+    // Find the book by ISBN and userId and update it with the new details
     let book = await Book.findOneAndUpdate(
       { isbn, userId },
       { $set: updateData },
@@ -305,12 +304,12 @@ app.delete("/api/books/:isbn", async (req, res) => {
     }
     const userId = user._id;
 
-    // attempt to delete the book by ISBN and userId
+    // Attempt to delete the book by ISBN and userId
     const deletionResult = await Book.deleteOne({ isbn, userId });
 
-    // check if a book was actually deleted
+    // Check if a book was actually deleted
     if (deletionResult.deletedCount === 0) {
-      return res.status(404).send("Book not found or user mismatch");
+      return res.status(404).send("Book not found");
     }
 
     res.send({ message: "Book successfully deleted" });
@@ -339,7 +338,7 @@ app.post("/api/new-user", async (req, res) => {
       res.status(201).json({
         message: "User created and logged in",
         user: { username: user.username },
-      }); // send username only back
+      }); // send only the username back
     }
   } catch (error) {
     res.status(500).json({
@@ -373,7 +372,7 @@ app.patch("/api/userinfo", async (req, res) => {
       user.imageUrl = imageUrl;
     }
 
-    // update the new password if provided
+    // Update the new password if provided
     if (newPassword) {
       user.password = newPassword;
     }
@@ -588,18 +587,18 @@ app.get("/api/pages-read/:year", async (req, res) => {
     }
     const userId = user._id;
 
-    // find books that belong to the user and match the year criteria
+    // find books that belong to the user and matchs the year criteria
     const books = await Book.find({
       userId: userId,  // Ensure the book is for user
       $or: [
         {
           readYear: yearInt,
-          dateFormat: 'year'  // check readYear if dateFormat is "year"
+          dateFormat: 'year'  // check the readYear if dateFormat is "year"
         },
         {
           startDate: { $lte: new Date(`${year}-12-31`) },
           endDate: { $gte: new Date(`${year}-01-01`) },
-          dateFormat: 'date'  // check startDate endDate if dateFormat is "date"
+          dateFormat: 'date'  // Check startDate endDate if dateFormat is "date"
         }
       ]
     });
@@ -612,7 +611,7 @@ app.get("/api/pages-read/:year", async (req, res) => {
         
         const start = new Date(Math.max(new Date(book.startDate).getTime(), new Date(`${year}-01-01`).getTime()));
         const end = new Date(Math.min(new Date(book.endDate).getTime(), new Date(`${year}-12-31`).getTime()));
-        const daysRead = (end - start) / (1000 * 60 * 60 * 24) + 1; //end - start gives miliseconds between 2 dates, divide to get days.
+        const daysRead = (end - start) / (1000 * 60 * 60 * 24) + 1; // end - start gives miliseconds between 2 dates, divide to get days.
 
         
         const totalDays = (new Date(book.endDate) - new Date(book.startDate)) / (1000 * 60 * 60 * 24) + 1;

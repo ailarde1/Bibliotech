@@ -53,7 +53,6 @@ function NewBookDetailsPage({ route, navigation }) {
     setShowEndDatePicker(!showEndDatePicker);
   };
 
-  // Initialize state for each editable book detail
   const [title, setTitle] = useState(book.volumeInfo.title);
   const [authors, setAuthors] = useState(
     book.volumeInfo.authors?.join(", ") ?? "Unknown Author"
@@ -554,7 +553,6 @@ function NewBookDetailsPage({ route, navigation }) {
       )}
       {readStatus === "read" && dateFormat === "date" && (
         <>
-          {/* Existing date picker UI for Start Date and Finish Date */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Start Date:</Text>
             <Button title="Select Start Date" onPress={toggleStartDatePicker} />
