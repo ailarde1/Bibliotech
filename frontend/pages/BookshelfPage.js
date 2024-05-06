@@ -130,7 +130,6 @@ const BookshelfPage = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     paddingHorizontal: 0,
   },
   bookItem: {
@@ -143,11 +142,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.5,
     elevation: 1,
+    height: 75,
     backgroundColor: "#FAFAFA",
   },
   bookImage: {
-    width: 50,
-    height: 75,
+    width: "undefined",
+    height: "100%",
+    aspectRatio: 4 / 6,
     marginRight: 10,
   },
   bookTitle: {
@@ -155,17 +156,19 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: "100%",
+    paddingBottom: "10%",
   },
   segmentControl: {
     marginHorizontal: 15,
     marginBottom: 5,
   },
   bookShelfItem: {
+    width: "undefined",
+    aspectRatio: 4 / 6,
     margin: 0,
     padding: 0,
     flex: 1 / 3, // three books per row in shelf view
     alignItems: "center",
-    marginBottom: 10,
   },
 });
 
