@@ -15,6 +15,8 @@ import * as SecureStore from "expo-secure-store";
 import { useRefresh } from "./RefreshContext";
 import { Dropdown } from "react-native-element-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -38,6 +40,13 @@ const EditBookDetailsPage = ({ route, navigation }) => {
   const [audioLength, setAudioLength] = useState(
     book.audioLength?.toString() || ""
   );
+  const [selectedCoverUrl, setSelectedCoverUrl] = useState(
+    book.thumbnail
+  ); //The Cover that the user has selected
+  const [customCoverUrl, setCustomCoverUrl] = useState(null); //Cover the user inputed the link for
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(""); //The local URI of the Image user uploaded
+  const [isManualUrlEnabled, setIsManualUrlEnabled] = useState(false); //The state for if URL input box should appear
+  const [showCustomCover, setShowCustomCover] = useState(false); //State of if Image either uplaoded or linked should be displayed
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [startDate, setStartDate] = useState(book.startDate ? new Date(book.startDate) : null);
@@ -83,11 +92,34 @@ const EditBookDetailsPage = ({ route, navigation }) => {
   const submitEdits = async () => {
     const username = await SecureStore.getItemAsync("username");
 
+    let finalCoverUrl =
+    uploadedImageUrl ||
+    selectedCoverUrl ||
+    book.thumbnail;
+
+  // If user uploaded an image and that is one that is selected
+  if (uploadedImageUrl === selectedCoverUrl) {
+    try {
+      const newUploadedImageUrl = await uploadImage(uploadedImageUrl);
+      if (newUploadedImageUrl) {
+        finalCoverUrl = newUploadedImageUrl; // sets to URL returned from backend
+      } else {
+        alert("Failed to upload custom image.");
+        return;
+      }
+    } catch (error) {
+      console.error("Upload Image Error:", error);
+      alert("An error occurred during image upload.");
+      return;
+    }
+  }
+  console.log(`finalCoverUrl: ${finalCoverUrl}`);
+
     const bookDetails = {
       title,
       authors: authors.split(", "),
       publishedDate,
-      thumbnail: book.thumbnail,
+      thumbnail: finalCoverUrl,
       description,
       pageCount: parseInt(pageCount, 10) || 0, // Ensure pageCount is sent as a number
       isbn: book.isbn,
@@ -128,6 +160,21 @@ const EditBookDetailsPage = ({ route, navigation }) => {
       Alert.alert("Error", error.message);
     }
   };
+
+  const axiosInstance = axios.create({
+    baseURL: apiUrl,
+  });
+  // Axios used for multiple attempts at uploading image.
+  axiosInstance.interceptors.response.use(undefined, async (err) => {
+    const config = err.config;
+    if (!config.retryCount || config.retryCount < config.maxRetries) {
+      config.retryCount = config.retryCount ? config.retryCount + 1 : 1;
+      const retryDelay = Math.pow(2, config.retryCount) * 1000;
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      return axiosInstance(config);
+    }
+    return Promise.reject(err);
+  });
 
   const deleteBook = async () => {
     const username = await SecureStore.getItemAsync("username");
@@ -208,6 +255,62 @@ const EditBookDetailsPage = ({ route, navigation }) => {
     </TouchableOpacity>
   );
 
+  const pickImage = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      alert("You refused to allow access your photos");
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 6],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.cancelled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+      console.log("New image URI:", uri);
+      setUploadedImageUrl(uri);
+      setSelectedCoverUrl(uri);
+    } else {
+      console.log("Image picker cancelled or failed");
+    }
+  };
+
+  const uploadImage = async (uri) => {
+    const formData = new FormData();
+    formData.append("file", {
+      uri: uri,
+      type: "image/jpeg",
+      name: uri.split("/").pop(),
+    });
+
+    try {
+      const response = await axiosInstance.post("/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        maxRetries: 5, //number of retries
+      });
+
+      if (response.status === 200) {
+        alert("Image uploaded successfully");
+        return response.data.url;
+      } else {
+        alert("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Upload failed after retries:", error);
+      alert("Error uploading image after retries");
+    }
+  };
+  
+
   //header button to delete - followed by confirmation alert
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -241,13 +344,88 @@ const EditBookDetailsPage = ({ route, navigation }) => {
 
 
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      style={styles.scrollView}
-      contentContainerStyle={styles.contentContainer}
-    >
+    <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          marginVertical: 20,
+        }}
+      >
+        <View style={styles.imagesContainer}>
+          <TouchableOpacity
+            onPress={() =>
+              setSelectedCoverUrl(book.thumbnail)
+            }
+          >
+            <Image
+              source={{ uri: book.thumbnail }}
+              style={[
+                styles.bookImage,
+                selectedCoverUrl === book.thumbnail &&
+                  styles.selectedImage,
+              ]}
+            />
+          </TouchableOpacity>
+          {customCoverUrl && showCustomCover && (
+            <TouchableOpacity
+              onPress={() => setSelectedCoverUrl(customCoverUrl)}
+            >
+              <Image
+                source={{ uri: customCoverUrl }}
+                style={[
+                  styles.bookImage,
+                  selectedCoverUrl === customCoverUrl && styles.selectedImage,
+                ]}
+              />
+            </TouchableOpacity>
+          )}
+          {uploadedImageUrl && (
+            <TouchableOpacity
+              onPress={() => setSelectedCoverUrl(uploadedImageUrl)}
+            >
+              <Image
+                source={{ uri: uploadedImageUrl }}
+                style={[
+                  styles.bookImage,
+                  selectedCoverUrl === uploadedImageUrl && styles.selectedImage,
+                ]}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      <TouchableOpacity onPress={pickImage} style={styles.CustomCoverLink}>
+        <Text style={styles.CustomCoverLinkText}>Upload Custom Image</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => setIsManualUrlEnabled((prevState) => !prevState)}
+        style={styles.CustomCoverLink}
+      >
+        <Text style={styles.CustomCoverLinkText}>Input Custom Cover URL</Text>
+      </TouchableOpacity>
+
+      {isManualUrlEnabled && (
+        <View style={styles.urlInputContainer}>
+          <TextInput
+            style={styles.input}
+            onChangeText={(text) => {
+              setCustomCoverUrl(text); // Set custom URL
+            }}
+            value={customCoverUrl}
+            placeholder="Enter Link of Image"
+            onSubmitEditing={() => setShowCustomCover(true)}
+          />
+        </View>
+      )}
+
+
+
+
+
       <View style={styles.container}>
-        <Image source={{ uri: book.thumbnail }} style={styles.bookImage} />
         <Text style={styles.label}>Title:</Text>
         <TextInput style={styles.input} onChangeText={setTitle} value={title} />
         <Text style={styles.label}>Authors:</Text>
@@ -402,13 +580,19 @@ const EditBookDetailsPage = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingBottom: 20,
+    paddingHorizontal: 10,
   },
   bookImage: {
-    width: 150,
-    height: 200,
+    width: 120,
+    height: 180,
     resizeMode: "contain",
     alignSelf: "center",
+  },
+  imagesContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 0,
   },
   input: {
     alignSelf: "stretch",
@@ -421,6 +605,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "white",
     fontSize: 16,
+  },
+  urlInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 8,
+    paddingHorizontal: 10,
   },
   label: {
     marginTop: 10,
@@ -468,6 +658,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     borderRadius: 8,
     backgroundColor: "white",
+  },
+  selectedImage: {
+    borderWidth: 5,
+    borderColor: "#007bff",
+  },
+  CustomCoverLink: {
+    backgroundColor: "#007bff",
+    paddingVertical: 10,
+    marginHorizontal: 20,
+    marginVertical: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  CustomCoverLinkText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
