@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  ScrollView
-} from 'react-native';
-
+import React, { useState, useEffect } from "react";
+import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
+import { useTheme } from "./ThemeContext";
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 const DetailedFriendPage = ({ route }) => {
   const { friendUsername } = route.params;
-  const [userInfo, setUserInfo] = useState({ username: friendUsername, imageUrl: 'https://awsbucketbibliotecha.s3.us-east-2.amazonaws.com/NoUserImage.png' });
-
+  const [userInfo, setUserInfo] = useState({
+    username: friendUsername,
+    imageUrl:
+      "https://awsbucketbibliotecha.s3.us-east-2.amazonaws.com/NoUserImage.png",
+  });
+  const { isDarkMode } = useTheme();
   useEffect(() => {
     fetchUserInfo();
   }, []);
@@ -20,29 +18,44 @@ const DetailedFriendPage = ({ route }) => {
   //Using same GET backend as user, not sure if that will cause problem later.
   const fetchUserInfo = async () => {
     try {
-      const response = await fetch(`${apiUrl}/userinfo?username=${encodeURIComponent(friendUsername)}`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `${apiUrl}/userinfo?username=${encodeURIComponent(friendUsername)}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (response.ok) {
         const data = await response.json();
         setUserInfo(data);
       } else {
-        console.error('Failed to fetch user info');
+        console.error("Failed to fetch user info");
       }
     } catch (error) {
-      console.error('Error fetching user info:', error);
+      console.error("Error fetching user info:", error);
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.centerContent}>
+    <ScrollView
+      contentContainerStyle={[
+        styles.centerContent,
+        { backgroundColor: isDarkMode ? "#333" : "#EEE" },
+      ]}
+    >
       <View style={styles.profileContainer}>
-        <Image source={{ uri: userInfo.imageUrl }} style={styles.profileImage} />
-        <Text style={styles.usernameText}>{userInfo.username}</Text>
+        <Image
+          source={{ uri: userInfo.imageUrl }}
+          style={styles.profileImage}
+        />
+        <Text
+          style={[styles.usernameText, { color: isDarkMode ? "#FFF" : "#333" }]}
+        >
+          {userInfo.username}
+        </Text>
       </View>
     </ScrollView>
   );
@@ -51,11 +64,11 @@ const DetailedFriendPage = ({ route }) => {
 const styles = StyleSheet.create({
   centerContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   profileContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
   },
   profileImage: {

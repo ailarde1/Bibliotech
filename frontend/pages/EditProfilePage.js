@@ -15,6 +15,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { useRefresh } from "./RefreshContext";
+import { useTheme } from "./ThemeContext";
 
 const EditProfile = ({ route, navigation }) => {
   const { userInfo } = route.params;
@@ -23,13 +24,14 @@ const EditProfile = ({ route, navigation }) => {
   const [password, setPassword] = useState(userInfo.password); // New state for password
   const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
   const { triggerRefresh } = useRefresh();
+  const { isDarkMode } = useTheme();
 
   const storeCredentials = async (username) => {
-    await SecureStore.setItemAsync('username', username);
+    await SecureStore.setItemAsync("username", username);
   };
 
   const storeCredentials2 = async (password) => {
-    await SecureStore.setItemAsync('password', password);
+    await SecureStore.setItemAsync("password", password);
   };
 
   const axiosInstance = axios.create({
@@ -103,32 +105,32 @@ const EditProfile = ({ route, navigation }) => {
 
   const handleSaveChanges = async () => {
     let imageUrl = uploadedImageUrl;
-  
+
     if (uploadedImageUrl && uploadedImageUrl !== userInfo.imageUrl) {
       const uploadedUrl = await uploadImage(uploadedImageUrl);
       imageUrl = uploadedUrl || userInfo.imageUrl; // Set to new URL if successful
     }
-  
+
     const updatedUserInfo = {
       currentUsername: userInfo.username,
       newUsername: username,
       newPassword: password, // Include the new password field
       imageUrl: imageUrl,
     };
-  
+
     try {
       const response = await axiosInstance.patch("/userinfo", updatedUserInfo, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (response.status === 200) {
         alert("Profile updated successfully");
         storeCredentials(username);
         storeCredentials2(password);
         navigation.goBack();
-        triggerRefresh('SettingsProfilePage');
+        triggerRefresh("SettingsProfilePage");
       } else {
         alert("Failed to update profile");
       }
@@ -136,39 +138,72 @@ const EditProfile = ({ route, navigation }) => {
       console.error("Error updating user info:", error);
       alert("Error updating profile");
     }
-  };  
+  };
 
   return (
-    <View style={styles.profileContainer}>
-      <Image
-        style={styles.profileImage}
-        source={
-          userInfo.imageUrl
-            ? { uri: uploadedImageUrl }
-            : require("../assets/NoUserImage.png")
-        }
-      />
-      <TouchableOpacity onPress={pickImage} style={styles.CustomCoverLink}>
-        <Text style={styles.CustomCoverLinkText}>Upload Custom Image</Text>
-      </TouchableOpacity>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDarkMode ? "#333" : "#EEE" },
+      ]}
+    >
+      <View
+        style={[
+          styles.profileContainer,
+          { backgroundColor: isDarkMode ? "#333" : "#EEE" },
+        ]}
+      >
+        <Image
+          style={styles.profileImage}
+          source={
+            userInfo.imageUrl
+              ? { uri: uploadedImageUrl }
+              : require("../assets/NoUserImage.png")
+          }
+        />
+        <TouchableOpacity
+          onPress={pickImage}
+          style={[
+            styles.CustomCoverLink,
+            { backgroundColor: isDarkMode ? "#005ECB" : "#007AFF" },
+          ]}
+        >
+          <Text style={styles.CustomCoverLinkText}>Upload Custom Image</Text>
+        </TouchableOpacity>
 
-      <Text style={styles.label}>Username</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={setUsername}
-        value={username}
-      />
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Username
+        </Text>
+        <TextInput
+          style={[
+            styles.input,
+            { backgroundColor: isDarkMode ? "#DDDDDD" : "#FFF" },
+          ]}
+          onChangeText={setUsername}
+          value={username}
+        />
 
-      <Text style={styles.label}>Password</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={setPassword}
-        value={password}
-        secureTextEntry={true}
-        placeholder="Enter your password"
-      />
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Password
+        </Text>
+        <TextInput
+          style={[
+            styles.input,
+            { backgroundColor: isDarkMode ? "#DDDDDD" : "#FFF" },
+          ]}
+          onChangeText={setPassword}
+          value={password}
+          secureTextEntry={true}
+          placeholder="Enter your password"
+        />
 
-      <Button style={styles.CustomCoverLink} title="Save Changes" onPress={handleSaveChanges} />
+        <Button
+          color={isDarkMode ? "#005ECB" : "#007AFF"}
+          style={styles.CustomCoverLink}
+          title="Save Changes"
+          onPress={handleSaveChanges}
+        />
+      </View>
     </View>
   );
 };
@@ -176,9 +211,7 @@ const EditProfile = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
+    padding: 5,
   },
   label: {
     marginTop: 10,
@@ -203,9 +236,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
   },
   CustomCoverLink: {
     backgroundColor: "#007bff",
@@ -215,6 +248,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
+  },
+  CustomCoverLinkText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

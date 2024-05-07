@@ -13,7 +13,7 @@ import {
 import * as SecureStore from "expo-secure-store";
 import { useAuth } from "./Authentication";
 import { useRefresh } from "./RefreshContext";
-import { useTheme } from './ThemeContext';
+import { useTheme } from "./ThemeContext";
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 const SettingsProfilePage = ({ navigation }) => {
@@ -24,7 +24,6 @@ const SettingsProfilePage = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const { refreshTrigger } = useRefresh();
   const { triggerRefresh } = useRefresh();
-
 
   const fetchUserInfo = async () => {
     const username = await SecureStore.getItemAsync("username");
@@ -73,9 +72,9 @@ const SettingsProfilePage = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    if (refreshTrigger === 'SettingsProfilePage') {
+    if (refreshTrigger === "SettingsProfilePage") {
       fetchUserInfo();
-      triggerRefresh('EmptyState');
+      triggerRefresh("EmptyState");
     }
   }, [refreshTrigger]);
 
@@ -133,9 +132,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 130,
+    height: 130,
+    borderRadius: 75,
   },
   usernameText: {
     fontSize: 25,

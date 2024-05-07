@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, Button, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import { useAuth } from "./Authentication";
 import * as SecureStore from "expo-secure-store";
 
@@ -117,15 +125,15 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 8,
-    elevation: 3,  // adds shadow for Android
-    shadowOpacity: 0.3,  // adds shadow for iOS
+    elevation: 3, // adds shadow for Android
+    shadowOpacity: 0.3, // adds shadow for iOS
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 3 },
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginHorizontal: 10,
   },
   spacer: {

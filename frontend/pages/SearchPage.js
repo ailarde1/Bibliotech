@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useTheme } from "./ThemeContext";
 
 //Url to backend. Edit in .env file.
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -18,6 +19,7 @@ function SearchPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [books, setBooks] = useState([]);
   const navigation = useNavigation();
+  const { isDarkMode } = useTheme();
 
   const fetchSearchResults = async (query) => {
     try {
@@ -40,23 +42,36 @@ function SearchPage() {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.resultsContainer}showsVerticalScrollIndicator={false}>
-      <TextInput
-        style={styles.input}
-        placeholder="Search books..."
-        value={searchTerm}
-        onChangeText={setSearchTerm}
-        onSubmitEditing={handleSearch}
-        returnKeyType="search"
-      />
-      <Button title="Search" onPress={handleSearch} />
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDarkMode ? "#333" : "#EEE" },
+      ]}
+    >
+      <ScrollView
+        style={styles.resultsContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <TextInput
+          style={styles.input}
+          placeholder="Search books..."
+          value={searchTerm}
+          backgroundColor={isDarkMode ? "#DDDDDD" : "#FFF"}
+          onChangeText={setSearchTerm}
+          onSubmitEditing={handleSearch}
+          returnKeyType="search"
+        />
+        <Button
+          color={isDarkMode ? "#005ECB" : "#007AFF"}
+          title="Search"
+          onPress={handleSearch}
+        />
 
         {books.map((book) => (
           <TouchableOpacity
             key={book.id}
             style={styles.bookItem}
-            onPress={() => navigation.navigate("NewBookDetails", { book })}
+            onPress={() => navigation.navigate("Add Book", { book })}
           >
             {book.volumeInfo.imageLinks?.thumbnail && (
               <Image
@@ -64,7 +79,14 @@ function SearchPage() {
                 style={styles.bookImage}
               />
             )}
-            <Text style={styles.bookTitle}>{book.volumeInfo.title}</Text>
+            <Text
+              style={[
+                styles.bookTitle,
+                { color: isDarkMode ? "#FFF" : "#333" },
+              ]}
+            >
+              {book.volumeInfo.title}
+            </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -74,6 +96,7 @@ function SearchPage() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     marginBottom: -40,
     padding: 0,
     paddingHorizontal: 20,
@@ -84,20 +107,17 @@ const styles = StyleSheet.create({
     borderColor: "gray",
     marginTop: 5,
     marginBottom: 15,
-    marginHorizontal: 10,
     padding: 10,
     fontSize: 18,
     borderRadius: 8,
-    backgroundColor: "white",
     fontSize: 16,
-    
   },
   resultsContainer: {
     marginBottom: 40,
     marginTop: 0,
   },
   bookItem: {
-    marginBottom: 20,
+    marginTop: 20,
   },
   bookImage: {
     width: 100,
@@ -108,7 +128,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
   },
-
+  button: {
+    marginBottom: 5,
+  },
 });
 
 export default SearchPage;

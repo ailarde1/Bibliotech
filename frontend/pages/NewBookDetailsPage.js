@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Platform,
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { useRefresh } from "./RefreshContext";
@@ -16,12 +17,14 @@ import { Dropdown } from "react-native-element-dropdown";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useTheme } from "./ThemeContext";
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 function NewBookDetailsPage({ route, navigation }) {
   const { book } = route.params;
   const { triggerRefresh } = useRefresh();
+  const { isDarkMode } = useTheme();
 
   const [newCoverUrl, setNewCoverUrl] = useState(""); //Cover from the other API
   const [selectedCoverUrl, setSelectedCoverUrl] = useState(
@@ -293,12 +296,22 @@ function NewBookDetailsPage({ route, navigation }) {
       style={[
         styles.statusButton,
         readStatus === status
-          ? styles.activeStatusButton
-          : styles.inactiveStatusButton,
+          ? isDarkMode
+            ? styles.activeStatusButtonDark
+            : styles.activeStatusButtonLight
+          : isDarkMode
+            ? styles.inactiveStatusButtonDark
+            : styles.inactiveStatusButtonLight,
       ]}
       onPress={() => setReadStatus(status)}
     >
-      <Text style={styles.statusButtonText}>
+      <Text
+        style={
+          readStatus === status
+            ? styles.statusButtonTextActive
+            : styles.statusButtonTextInactive
+        }
+      >
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </Text>
     </TouchableOpacity>
@@ -309,12 +322,22 @@ function NewBookDetailsPage({ route, navigation }) {
       style={[
         styles.statusButton,
         readFormat === format
-          ? styles.activeStatusButton
-          : styles.inactiveStatusButton,
+          ? isDarkMode
+            ? styles.activeStatusButtonDark
+            : styles.activeStatusButtonLight
+          : isDarkMode
+            ? styles.inactiveStatusButtonDark
+            : styles.inactiveStatusButtonLight,
       ]}
       onPress={() => setReadFormat(format)}
     >
-      <Text style={styles.statusButtonText}>
+      <Text
+        style={
+          readFormat === format
+            ? styles.statusButtonTextActive
+            : styles.statusButtonTextInactive
+        }
+      >
         {format.charAt(0).toUpperCase() + format.slice(1)}
       </Text>
     </TouchableOpacity>
@@ -325,12 +348,22 @@ function NewBookDetailsPage({ route, navigation }) {
       style={[
         styles.statusButton,
         dateFormat === format
-          ? styles.activeStatusButton
-          : styles.inactiveStatusButton,
+          ? isDarkMode
+            ? styles.activeStatusButtonDark
+            : styles.activeStatusButtonLight
+          : isDarkMode
+            ? styles.inactiveStatusButtonDark
+            : styles.inactiveStatusButtonLight,
       ]}
       onPress={() => setDateFormat(format)}
     >
-      <Text style={styles.statusButtonText}>
+      <Text
+        style={
+          dateFormat === format
+            ? styles.statusButtonTextActive
+            : styles.statusButtonTextInactive
+        }
+      >
         {format.charAt(0).toUpperCase() + format.slice(1)}
       </Text>
     </TouchableOpacity>
@@ -369,7 +402,13 @@ function NewBookDetailsPage({ route, navigation }) {
   }, [book.volumeInfo.title]);
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={[
+        styles.container,
+        { backgroundColor: isDarkMode ? "#333" : "#EEE" },
+      ]}
+    >
       <View
         style={{
           flexDirection: "row",
@@ -433,13 +472,22 @@ function NewBookDetailsPage({ route, navigation }) {
         </View>
       </View>
 
-      <TouchableOpacity onPress={pickImage} style={styles.CustomCoverLink}>
+      <TouchableOpacity
+        onPress={pickImage}
+        style={[
+          styles.CustomCoverLink,
+          { backgroundColor: isDarkMode ? "#005ECB" : "#007AFF" },
+        ]}
+      >
         <Text style={styles.CustomCoverLinkText}>Upload Custom Image</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         onPress={() => setIsManualUrlEnabled((prevState) => !prevState)}
-        style={styles.CustomCoverLink}
+        style={[
+          styles.CustomCoverLink,
+          { backgroundColor: isDarkMode ? "#005ECB" : "#007AFF" },
+        ]}
       >
         <Text style={styles.CustomCoverLinkText}>Input Custom Cover URL</Text>
       </TouchableOpacity>
@@ -447,9 +495,12 @@ function NewBookDetailsPage({ route, navigation }) {
       {isManualUrlEnabled && (
         <View style={styles.urlInputContainer}>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              { backgroundColor: isDarkMode ? "#DDDDDD" : "#FFF" },
+            ]}
             onChangeText={(text) => {
-              setCustomCoverUrl(text); // Set custom URL
+              setCustomCoverUrl(text);
             }}
             value={customCoverUrl}
             placeholder="Enter Link of Image"
@@ -459,20 +510,33 @@ function NewBookDetailsPage({ route, navigation }) {
       )}
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Title:</Text>
-        <TextInput style={styles.input} onChangeText={setTitle} value={title} />
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Title:
+        </Text>
+        <TextInput
+          style={styles.input}
+          backgroundColor={isDarkMode ? "#DDDDDD" : "#FFF"}
+          onChangeText={setTitle}
+          value={title}
+        />
       </View>
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Authors:</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Authors:
+        </Text>
         <TextInput
+          backgroundColor={isDarkMode ? "#DDDDDD" : "#FFF"}
           style={styles.input}
           onChangeText={setAuthors}
           value={authors}
         />
       </View>
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Published Date:</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Published Date:
+        </Text>
         <TextInput
+          backgroundColor={isDarkMode ? "#DDDDDD" : "#FFF"}
           style={styles.input}
           onChangeText={setPublishedDate}
           value={publishedDate}
@@ -480,9 +544,18 @@ function NewBookDetailsPage({ route, navigation }) {
       </View>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Page Count:</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Page Count:
+        </Text>
         <Dropdown
-          style={[styles.dropdown, { flex: 2, marginLeft: 0 }]}
+          style={[
+            styles.dropdown,
+            {
+              flex: 2,
+              marginLeft: 0,
+              backgroundColor: isDarkMode ? "#DDDDDD" : "#FFF",
+            }, // Adjust background color here
+          ]}
           placeholder="Select Page Count"
           data={pageCountOptions}
           labelField="label"
@@ -502,8 +575,11 @@ function NewBookDetailsPage({ route, navigation }) {
 
       {isCustomPageCount && (
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Enter Page Count:</Text>
+          <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+            Enter Page Count:
+          </Text>
           <TextInput
+            backgroundColor={isDarkMode ? "#DDDDDD" : "#FFF"}
             style={styles.input}
             onChangeText={(text) => setSelectedPageCount(text)}
             value={selectedPageCount}
@@ -514,12 +590,18 @@ function NewBookDetailsPage({ route, navigation }) {
       )}
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>ISBN:</Text>
-        <Text style={styles.text}>{isbn}</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          ISBN:
+        </Text>
+        <Text style={[styles.text, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          {isbn}
+        </Text>
       </View>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Read Status:</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Read Status:
+        </Text>
         <View style={styles.statusContainer}>
           {renderStatusButton("read")}
           {renderStatusButton("reading")}
@@ -529,9 +611,27 @@ function NewBookDetailsPage({ route, navigation }) {
 
       {readStatus === "reading" && (
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Start Date:</Text>
-          <Button title="Select Start Date" onPress={toggleStartDatePicker} />
-          <Text style={styles.dateDisplay}>
+          <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+            Start Date:
+          </Text>
+          <Button
+            color={isDarkMode ? "#005ECB" : "#007AFF"}
+            title="Select Start Date"
+            onPress={toggleStartDatePicker}
+          />
+          <Text
+            style={[
+              {
+                color:
+                  Platform.OS === "ios"
+                    ? "transparent"
+                    : isDarkMode
+                      ? "#FFF"
+                      : "#333",
+              },
+              styles.dateDisplay,
+            ]}
+          >
             {startDate ? formatDate(startDate) : "No date selected"}
           </Text>
           {renderDatePicker(
@@ -544,7 +644,9 @@ function NewBookDetailsPage({ route, navigation }) {
       )}
       {readStatus === "read" && (
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Date Format:</Text>
+          <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+            Date Format:
+          </Text>
           <View style={styles.statusContainer}>
             {renderDateTypeButton("year")}
             {renderDateTypeButton("date")}
@@ -554,9 +656,29 @@ function NewBookDetailsPage({ route, navigation }) {
       {readStatus === "read" && dateFormat === "date" && (
         <>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Start Date:</Text>
-            <Button title="Select Start Date" onPress={toggleStartDatePicker} />
-            <Text style={styles.dateDisplay}>
+            <Text
+              style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}
+            >
+              Start Date:
+            </Text>
+            <Button
+              color={isDarkMode ? "#005ECB" : "#007AFF"}
+              title="Select Start Date"
+              onPress={toggleStartDatePicker}
+            />
+            <Text
+              style={[
+                {
+                  color:
+                    Platform.OS === "ios"
+                      ? "transparent"
+                      : isDarkMode
+                        ? "#FFF"
+                        : "#333",
+                },
+                styles.dateDisplay,
+              ]}
+            >
               {startDate ? formatDate(startDate) : "No date selected"}
             </Text>
             {renderDatePicker(
@@ -567,9 +689,29 @@ function NewBookDetailsPage({ route, navigation }) {
             )}
           </View>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Finish Date:</Text>
-            <Button title="Select Finish Date" onPress={toggleEndDatePicker} />
-            <Text style={styles.dateDisplay}>
+            <Text
+              style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}
+            >
+              Finish Date:
+            </Text>
+            <Button
+              color={isDarkMode ? "#005ECB" : "#007AFF"}
+              title="Select Finish Date"
+              onPress={toggleEndDatePicker}
+            />
+            <Text
+              style={[
+                {
+                  color:
+                    Platform.OS === "ios"
+                      ? "transparent"
+                      : isDarkMode
+                        ? "#FFF"
+                        : "#333",
+                },
+                styles.dateDisplay,
+              ]}
+            >
               {endDate ? formatDate(endDate) : "No date selected"}
             </Text>
             {renderDatePicker(
@@ -584,9 +726,18 @@ function NewBookDetailsPage({ route, navigation }) {
 
       {readStatus === "read" && dateFormat === "year" && (
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Year Read:</Text>
+          <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+            Year Read:
+          </Text>
           <Dropdown
-            style={styles.dropdown}
+            style={[
+              styles.dropdown,
+              {
+                flex: 2,
+                marginLeft: 0,
+                backgroundColor: isDarkMode ? "#DDDDDD" : "#FFF",
+              }, // Adjust background color here
+            ]}
             placeholder="Select Year"
             data={Array.from(
               { length: new Date().getFullYear() - 1999 },
@@ -604,7 +755,9 @@ function NewBookDetailsPage({ route, navigation }) {
       )}
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Read Format:</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Read Format:
+        </Text>
         <View style={styles.statusContainer}>
           {renderFormatButton("audio")}
           {renderFormatButton("physical")}
@@ -614,9 +767,12 @@ function NewBookDetailsPage({ route, navigation }) {
 
       {readFormat === "digital" && (
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Ebook Page Count:</Text>
+          <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+            Ebook Page Count:
+          </Text>
           <TextInput
             style={styles.input}
+            backgroundColor={isDarkMode ? "#DDDDDD" : "#FFF"}
             onChangeText={setEbookPageCount}
             value={ebookPageCount}
             keyboardType="numeric"
@@ -627,9 +783,12 @@ function NewBookDetailsPage({ route, navigation }) {
 
       {readFormat === "audio" && (
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Audio Length (minutes):</Text>
+          <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+            Audio Length (minutes):
+          </Text>
           <TextInput
             style={styles.input}
+            backgroundColor={isDarkMode ? "#DDDDDD" : "#FFF"}
             onChangeText={setAudioLength}
             value={audioLength}
             keyboardType="numeric"
@@ -646,17 +805,20 @@ function NewBookDetailsPage({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+  dateDisplay: {
+    fontSize: 18,
+    marginLeft: 10,
+  },
   container: {
     flex: 1,
-    marginRight: 5,
-    marginLeft: 5,
+    paddingRight: 5,
+    paddingLeft: 5,
   },
   buttonContainer: {
     marginTop: 20,
     marginBottom: 25,
     padding: 10,
     alignItems: "center",
-    backgroundColor: "#007bff",
   },
   bookImage: {
     width: 100,
@@ -692,7 +854,6 @@ const styles = StyleSheet.create({
     padding: 5,
     fontSize: 18,
     borderRadius: 8,
-    backgroundColor: "white",
   },
   buttonContainer: {
     marginTop: 20,
@@ -702,11 +863,9 @@ const styles = StyleSheet.create({
     height: 40,
     flex: 1,
     borderWidth: 1,
-    borderColor: "gray",
     padding: 10,
     fontSize: 18,
     borderRadius: 8,
-    backgroundColor: "white",
   },
   statusContainer: {
     flexDirection: "row",
@@ -718,11 +877,23 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     borderRadius: 5,
   },
-  activeStatusButton: {
-    backgroundColor: "#007bff",
+  activeStatusButtonDark: {
+    backgroundColor: "#005ECB",
   },
-  inactiveStatusButton: {
-    backgroundColor: "#e9ecef",
+  activeStatusButtonLight: {
+    backgroundColor: "#007AFF",
+  },
+  inactiveStatusButtonDark: {
+    backgroundColor: "#DDDDDD",
+  },
+  inactiveStatusButtonLight: {
+    backgroundColor: "#FFF",
+  },
+  statusButtonTextActive: {
+    color: "#FFF",
+  },
+  statusButtonTextInactive: {
+    color: "#333",
   },
   statusButtonText: {
     color: "white",
@@ -732,7 +903,6 @@ const styles = StyleSheet.create({
     borderColor: "#007bff",
   },
   CustomCoverLink: {
-    backgroundColor: "#007bff",
     paddingVertical: 10,
     marginHorizontal: 20,
     marginVertical: 10,
@@ -745,12 +915,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  dateDisplay: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: "black",
-  },
-  text:{
+  text: {
     fontSize: 18,
     color: "black",
     marginLeft: 5,

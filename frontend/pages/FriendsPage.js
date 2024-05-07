@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
+import { useTheme } from "./ThemeContext";
 
 const FriendsPage = ({ navigation }) => {
   const [friends, setFriends] = useState([]);
@@ -18,6 +19,7 @@ const FriendsPage = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     fetchFriends();
@@ -135,50 +137,91 @@ const FriendsPage = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Friends</Text>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDarkMode ? "#333" : "#EEE" },
+      ]}
+    >
+      <Text style={[styles.header, { color: isDarkMode ? "#FFF" : "#333" }]}>
+        Friends
+      </Text>
       <FlatList
+        style={[styles.list, { color: isDarkMode ? "#FFF" : "#333" }]}
         data={friends}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <View style={styles.listItem}>
             <TouchableOpacity
-            style = {styles.listItem}
-              onPress={() => navigation.navigate("DetailedFriend", { friendUsername: item.username})}
+              style={styles.listItem}
+              onPress={() =>
+                navigation.navigate("DetailedFriend", {
+                  friendUsername: item.username,
+                })
+              }
             >
               <Image source={{ uri: item.imageUrl }} style={styles.image} />
-              <Text style={styles.item}>{item.username}</Text>
+              <Text
+                style={[styles.item, { color: isDarkMode ? "#FFF" : "#333" }]}
+              >
+                {item.username}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
       />
 
-      <Text style={styles.header}>Friend Requests</Text>
+      <Text style={[styles.header, { color: isDarkMode ? "#FFF" : "#333" }]}>
+        Friend Requests
+      </Text>
       {requests.map((request) => (
         <View key={request._id} style={styles.requestItem}>
           <Image source={{ uri: request.imageUrl }} style={styles.image} />
-          <Text style={styles.item}>{request.username}</Text>
-          <Button title="Accept" onPress={() => handleAccept(request._id)} />
-          <Button title="Decline" onPress={() => handleDecline(request._id)} />
+          <Text style={[styles.item, { color: isDarkMode ? "#FFF" : "#333" }]}>
+            {request.username}
+          </Text>
+          <Button
+            color={isDarkMode ? "#005ECB" : "#007AFF"}
+            title="Accept"
+            onPress={() => handleAccept(request._id)}
+          />
+          <Button
+            color="red"
+            title="Decline"
+            onPress={() => handleDecline(request._id)}
+          />
         </View>
       ))}
 
-      <Text style={styles.header}>Add Friend</Text>
+      <Text style={[styles.header, { color: isDarkMode ? "#FFF" : "#333" }]}>
+        Add Friend
+      </Text>
       <TextInput
         style={styles.input}
         onChangeText={setSearchQuery}
+        backgroundColor={isDarkMode ? "#DDDDDD" : "#FFF"}
         value={searchQuery}
         placeholder="Search..."
+        returnKeyType="search"
       />
-      <Button title="Search" onPress={handleSearch} />
+      <Button
+        color={isDarkMode ? "#005ECB" : "#007AFF"}
+        title="Search"
+        onPress={handleSearch}
+      />
       <FlatList
         data={searchResults}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <View style={styles.searchItem}>
             <Image source={{ uri: item.imageUrl }} style={styles.image} />
-            <Text>{item.username}</Text>
+            <Text
+              style={[styles.item, { color: isDarkMode ? "#FFF" : "#333" }]}
+            >
+              {item.username}
+            </Text>
             <Button
+              color={isDarkMode ? "#005ECB" : "#007AFF"}
               title="Add"
               onPress={() => handleSendFriendRequest(item.username)}
             />
@@ -210,6 +253,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
   },
+  list: {},
   requestItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -217,10 +261,15 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   input: {
+    alignSelf: "stretch",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "gray",
+    marginTop: 5,
+    marginBottom: 15,
     padding: 10,
-    marginVertical: 10,
+    fontSize: 18,
+    borderRadius: 8,
+    fontSize: 16,
   },
   searchItem: {
     flexDirection: "row",

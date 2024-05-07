@@ -12,6 +12,7 @@ import {
 import * as SecureStore from "expo-secure-store";
 import { useRefresh } from "./RefreshContext";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import { useTheme } from "./ThemeContext";
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -19,6 +20,7 @@ const BookshelfPage = ({ navigation }) => {
   const [books, setBooks] = useState([]);
   const [selection, setSelection] = useState("all books");
   const [viewStyle, setViewStyle] = useState("list");
+  const { isDarkMode } = useTheme();
 
   const [refreshing, setRefreshing] = useState(false);
   const { refreshTrigger } = useRefresh();
@@ -77,10 +79,11 @@ const BookshelfPage = ({ navigation }) => {
             setViewStyle(newViewStyle);
           }}
           style={{ width: 120, height: 30, marginRight: 10 }}
+          backgroundColor={isDarkMode ? "#444445" : "#EEE"}
         />
       ),
     });
-  }, [navigation, viewStyle]);
+  }, [navigation, viewStyle, isDarkMode]);
 
   // Filter books based on selection before displaying
   const filteredBooks = books.filter((book) => {
@@ -90,28 +93,37 @@ const BookshelfPage = ({ navigation }) => {
 
   const renderBookItem = ({ item }) => (
     <TouchableOpacity
-      style={viewStyle === "list" ? styles.bookItem : styles.bookShelfItem}
+      style={[
+        viewStyle === "list" ? styles.bookItem : styles.bookShelfItem,
+        { backgroundColor: isDarkMode ? "#444445" : "#FFF" },
+      ]}
       onPress={() => navigation.navigate("BookDetails", { book: item })}
     >
       <Image source={{ uri: item.thumbnail }} style={styles.bookImage} />
       {viewStyle === "list" && (
-        <Text style={styles.bookTitle}>{item.title}</Text>
+        <Text
+          style={[styles.bookTitle, { color: isDarkMode ? "#FFF" : "#333" }]}
+        >
+          {item.title}
+        </Text>
       )}
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <SegmentedControl
-        style={styles.segmentControl}
-        values={["All Books", "Read", "Not Read"]}
-        selectedIndex={["all books", "read", "not read"].indexOf(selection)}
-        onChange={(event) => {
-          const newIndex = event.nativeEvent.selectedSegmentIndex;
-          const newSelection = ["all books", "read", "not read"][newIndex];
-          setSelection(newSelection);
-        }}
-      />
+    <View style={{ backgroundColor: isDarkMode ? "#333" : "#EEE", flex: 1 }}>
+      <View style={styles.container}>
+        <SegmentedControl
+          backgroundColor={isDarkMode ? "#444445" : "#EEE"}
+          values={["All Books", "Read", "Not Read"]}
+          selectedIndex={["all books", "read", "not read"].indexOf(selection)}
+          onChange={(event) => {
+            const newIndex = event.nativeEvent.selectedSegmentIndex;
+            const newSelection = ["all books", "read", "not read"][newIndex];
+            setSelection(newSelection);
+          }}
+        />
+      </View>
       <FlatList
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollView}
@@ -130,7 +142,7 @@ const BookshelfPage = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 0,
+    marginBottom: 3,
   },
   bookItem: {
     flexDirection: "row",
@@ -156,11 +168,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: "100%",
-    paddingBottom: "10%",
-  },
-  segmentControl: {
-    marginHorizontal: 15,
-    marginBottom: 5,
+    paddingBottom: "1%",
   },
   bookShelfItem: {
     width: "undefined",

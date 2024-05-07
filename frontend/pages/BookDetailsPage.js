@@ -8,61 +8,136 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-
+import { useTheme } from "./ThemeContext";
 
 const BookDetailsPage = ({ route, navigation }) => {
+  const { isDarkMode } = useTheme();
   const { book } = route.params;
 
   const navigateToEdit = () => {
     navigation.navigate("EditBookDetails", { book });
-  }
+  };
 
   return (
     <ScrollView
-      style={styles.scrollView}
+      style={[
+        styles.scrollView,
+        { backgroundColor: isDarkMode ? "#333" : "#EEE" },
+      ]}
       contentContainerStyle={styles.contentContainer}
     >
       <View style={styles.container}>
         <Image source={{ uri: book.thumbnail }} style={styles.bookImage} />
-        <Text style={styles.label}>Title:</Text>
-        <Text style={styles.bookInfo}>{book.title}</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Title:
+        </Text>
+        <Text
+          style={[styles.bookInfo, { color: isDarkMode ? "#FFF" : "#333" }]}
+        >
+          {book.title}
+        </Text>
 
-        <Text style={styles.label}>Authors:</Text>
-        <Text style={styles.bookInfo}>{book.authors.join(", ")}</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Authors:
+        </Text>
+        <Text
+          style={[styles.bookInfo, { color: isDarkMode ? "#FFF" : "#333" }]}
+        >
+          {book.authors.join(", ")}
+        </Text>
 
-        <Text style={styles.label}>Published Date:</Text>
-        <Text style={styles.bookInfo}>{book.publishedDate}</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Published Date:
+        </Text>
+        <Text
+          style={[styles.bookInfo, { color: isDarkMode ? "#FFF" : "#333" }]}
+        >
+          {book.publishedDate}
+        </Text>
 
-        <Text style={styles.label}>Page Count:</Text>
-        <Text style={styles.bookInfo}>{book.pageCount}</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Page Count:
+        </Text>
+        <Text
+          style={[styles.bookInfo, { color: isDarkMode ? "#FFF" : "#333" }]}
+        >
+          {book.pageCount}
+        </Text>
 
-        <Text style={styles.label}>ISBN:</Text>
-        <Text style={styles.bookInfo}>{book.isbn}</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          ISBN:
+        </Text>
+        <Text
+          style={[styles.bookInfo, { color: isDarkMode ? "#FFF" : "#333" }]}
+        >
+          {book.isbn}
+        </Text>
 
-        <Text style={styles.label}>Read Status:</Text>
-        <Text style={styles.bookInfo}>{book.readStatus}</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Read Status:
+        </Text>
+        <Text
+          style={[styles.bookInfo, { color: isDarkMode ? "#FFF" : "#333" }]}
+        >
+          {book.readStatus}
+        </Text>
 
-        <Text style={styles.label}>Read Format:</Text>
-        <Text style={styles.bookInfo}>{book.readFormat}</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Read Format:
+        </Text>
+        <Text
+          style={[styles.bookInfo, { color: isDarkMode ? "#FFF" : "#333" }]}
+        >
+          {book.readFormat}
+        </Text>
 
         {book.readFormat === "audio" && (
           <View>
-            <Text style={styles.label}>Audio Length:</Text>
-            <Text style={styles.bookInfo}>{book.audioLength}</Text>
+            <Text
+              style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}
+            >
+              Audio Length:
+            </Text>
+            <Text
+              style={[styles.bookInfo, { color: isDarkMode ? "#FFF" : "#333" }]}
+            >
+              {book.audioLength}
+            </Text>
           </View>
         )}
         {book.readFormat === "digital" && (
           <View>
-            <Text style={styles.label}>Ebook Page Count:</Text>
-            <Text style={styles.bookInfo}>{book.ebookPageCount}</Text>
+            <Text
+              style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}
+            >
+              Ebook Page Count:
+            </Text>
+            <Text
+              style={[styles.bookInfo, { color: isDarkMode ? "#FFF" : "#333" }]}
+            >
+              {book.ebookPageCount}
+            </Text>
           </View>
         )}
 
-        <Text style={styles.label}>Description:</Text>
-        <Text style={styles.bookInfo}>{book.description}</Text>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Description:
+        </Text>
+        <Text
+          style={[styles.bookInfo, { color: isDarkMode ? "#FFF" : "#333" }]}
+        >
+          {book.description}
+        </Text>
       </View>
       <TouchableOpacity onPress={navigateToEdit} style={styles.editButton}>
-        <Text style={styles.editButtonText}>Edit</Text>
+        <Text
+          style={[
+            styles.editButtonText,
+            { color: isDarkMode ? "#FFF" : "#333" },
+          ]}
+        >
+          Edit
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -74,12 +149,11 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   bookImage: {
-    width: 150,
-    height: 200,
-    resizeMode: "contain",
+    width: 180,
+    height: 270,
   },
   bookTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "bold",
     marginTop: 20,
     marginBottom: 10,
@@ -89,12 +163,12 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginTop: 10,
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 18,
   },
   bookInfo: {
     alignSelf: "flex-start",
     marginBottom: 5,
-    fontSize: 14,
+    fontSize: 18,
   },
   editButton: {
     marginHorizontal: 20,
@@ -105,8 +179,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   editButtonText: {
-    fontSize: 16,
-    color: "white",
+    fontSize: 20,
   },
 });
 

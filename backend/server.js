@@ -15,7 +15,7 @@ const multer = require("multer");
 const { Readable } = require("stream");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-app.use(express.json()); 
+app.use(express.json());
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
@@ -175,7 +175,6 @@ app.get("/api/userinfo", async (req, res) => {
     const userInfo = {
       username: user.username,
       imageUrl: user.imageUrl,
-
     };
 
     res.json(userInfo);
@@ -227,7 +226,8 @@ app.post("/api/books", async (req, res) => {
       return res.status(409).send("ISBN already exists for the user");
     }
 
-    const fixedEndDate = readStatus === "reading" ? null : endDate ? new Date(endDate) : null;
+    const fixedEndDate =
+      readStatus === "reading" ? null : endDate ? new Date(endDate) : null;
     let book = new Book({
       title,
       authors,
@@ -425,9 +425,9 @@ app.get("/api/reading", async (req, res) => {
       return res.status(404).send("User not found");
     }
     const userId = user._id;
-    
+
     // Finds all books with that userId where readStatus is 'reading'
-    const books = await Book.find({ userId: userId, readStatus: 'reading' });
+    const books = await Book.find({ userId: userId, readStatus: "reading" });
     res.json(books);
   } catch (error) {
     res.status(500).send("Error retrieving the user's books: " + error.message);
@@ -439,13 +439,21 @@ app.patch("/api/updatePage", async (req, res) => {
   const pagesInt = parseInt(currentPage, 10);
 
   if (!bookId || isNaN(pagesInt)) {
-    return res.status(400).json({ message: "Book ID and current page must be provided and current page must be a number" });
+    return res
+      .status(400)
+      .json({
+        message:
+          "Book ID and current page must be provided and current page must be a number",
+      });
   }
 
   try {
-    
-    const book = await Book.findByIdAndUpdate(bookId, { currentPage: pagesInt }, { new: true });
-    
+    const book = await Book.findByIdAndUpdate(
+      bookId,
+      { currentPage: pagesInt },
+      { new: true }
+    );
+
     if (!book) {
       return res.status(404).json({ message: "Book not found" });
     }
@@ -453,24 +461,29 @@ app.patch("/api/updatePage", async (req, res) => {
     res.json({ message: "Page updated successfully", book: book });
   } catch (error) {
     console.error("Error updating page:", error);
-    res.status(500).json({ message: "Failed to update the page", error: error.toString() });
+    res
+      .status(500)
+      .json({ message: "Failed to update the page", error: error.toString() });
   }
 });
-
-
 
 app.get("/api/friends", async (req, res) => {
   const { username } = req.query;
 
   try {
-    const user = await User.findOne({ username }).populate('friends', 'username imageUrl');
+    const user = await User.findOne({ username }).populate(
+      "friends",
+      "username imageUrl"
+    );
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     res.json({ friends: user.friends });
   } catch (error) {
-    res.status(500).json({ message: "Error retrieving friends", error: error.toString() });
+    res
+      .status(500)
+      .json({ message: "Error retrieving friends", error: error.toString() });
   }
 });
 
@@ -478,14 +491,22 @@ app.get("/api/friends/requests", async (req, res) => {
   const { username } = req.query;
 
   try {
-    const user = await User.findOne({ username }).populate('requestsReceived', 'username imageUrl');
+    const user = await User.findOne({ username }).populate(
+      "requestsReceived",
+      "username imageUrl"
+    );
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     res.json({ requests: user.requestsReceived });
   } catch (error) {
-    res.status(500).json({ message: "Error retrieving friend requests", error: error.toString() });
+    res
+      .status(500)
+      .json({
+        message: "Error retrieving friend requests",
+        error: error.toString(),
+      });
   }
 });
 
@@ -508,9 +529,17 @@ app.post("/api/friends/accept", async (req, res) => {
     await user.save();
     await requester.save();
 
-    res.json({ message: "Friend request accepted", friend: { username: requester.username, imageUrl: requester.imageUrl } });
+    res.json({
+      message: "Friend request accepted",
+      friend: { username: requester.username, imageUrl: requester.imageUrl },
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error accepting friend request", error: error.toString() });
+    res
+      .status(500)
+      .json({
+        message: "Error accepting friend request",
+        error: error.toString(),
+      });
   }
 });
 
@@ -528,7 +557,12 @@ app.post("/api/friends/decline", async (req, res) => {
 
     res.json({ message: "Friend request declined" });
   } catch (error) {
-    res.status(500).json({ message: "Error declining friend request", error: error.toString() });
+    res
+      .status(500)
+      .json({
+        message: "Error declining friend request",
+        error: error.toString(),
+      });
   }
 });
 
@@ -536,10 +570,14 @@ app.get("/api/users/search", async (req, res) => {
   const { search } = req.query;
 
   try {
-    const users = await User.find({ username: new RegExp(search, 'i') }).select('username imageUrl');
+    const users = await User.find({ username: new RegExp(search, "i") }).select(
+      "username imageUrl"
+    );
     res.json(users);
   } catch (error) {
-    res.status(500).json({ message: "Error searching for users", error: error.toString() });
+    res
+      .status(500)
+      .json({ message: "Error searching for users", error: error.toString() });
   }
 });
 
@@ -554,8 +592,13 @@ app.post("/api/friends/send-request", async (req, res) => {
       return res.status(404).json({ message: "One or both users not found" });
     }
 
-    if (toUser.requestsReceived.includes(fromUser._id) || fromUser.friends.includes(toUser._id)) {
-      return res.status(409).json({ message: "Request already sent or users are already friends" });
+    if (
+      toUser.requestsReceived.includes(fromUser._id) ||
+      fromUser.friends.includes(toUser._id)
+    ) {
+      return res
+        .status(409)
+        .json({ message: "Request already sent or users are already friends" });
     }
 
     toUser.requestsReceived.push(fromUser._id);
@@ -564,11 +607,21 @@ app.post("/api/friends/send-request", async (req, res) => {
     await toUser.save();
     await fromUser.save();
 
-    res.status(200).json({ message: "friend request sent successfully", recipient: { username: toUser.username, imageUrl: toUser.imageUrl } });
+    res
+      .status(200)
+      .json({
+        message: "friend request sent successfully",
+        recipient: { username: toUser.username, imageUrl: toUser.imageUrl },
+      });
   } catch (error) {
-    res.status(500).json({ message: "Error sending friend request", error: error.toString() });
+    res
+      .status(500)
+      .json({
+        message: "Error sending friend request",
+        error: error.toString(),
+      });
   }
-}); 
+});
 
 app.get("/api/pages-read/:year", async (req, res) => {
   const { year } = req.params;
@@ -589,32 +642,43 @@ app.get("/api/pages-read/:year", async (req, res) => {
 
     // find books that belong to the user and matchs the year criteria
     const books = await Book.find({
-      userId: userId,  // Ensure the book is for user
+      userId: userId, // Ensure the book is for user
       $or: [
         {
           readYear: yearInt,
-          dateFormat: 'year'  // check the readYear if dateFormat is "year"
+          dateFormat: "year", // check the readYear if dateFormat is "year"
         },
         {
           startDate: { $lte: new Date(`${year}-12-31`) },
           endDate: { $gte: new Date(`${year}-01-01`) },
-          dateFormat: 'date'  // Check startDate endDate if dateFormat is "date"
-        }
-      ]
+          dateFormat: "date", // Check startDate endDate if dateFormat is "date"
+        },
+      ],
     });
 
     let totalPages = 0;
-    books.forEach(book => {
-      if (book.dateFormat === 'year' && book.readYear === yearInt) {
+    books.forEach((book) => {
+      if (book.dateFormat === "year" && book.readYear === yearInt) {
         totalPages += book.pageCount;
-      } else if (book.dateFormat === 'date') {
-        
-        const start = new Date(Math.max(new Date(book.startDate).getTime(), new Date(`${year}-01-01`).getTime()));
-        const end = new Date(Math.min(new Date(book.endDate).getTime(), new Date(`${year}-12-31`).getTime()));
+      } else if (book.dateFormat === "date") {
+        const start = new Date(
+          Math.max(
+            new Date(book.startDate).getTime(),
+            new Date(`${year}-01-01`).getTime()
+          )
+        );
+        const end = new Date(
+          Math.min(
+            new Date(book.endDate).getTime(),
+            new Date(`${year}-12-31`).getTime()
+          )
+        );
         const daysRead = (end - start) / (1000 * 60 * 60 * 24) + 1; // end - start gives miliseconds between 2 dates, divide to get days.
 
-        
-        const totalDays = (new Date(book.endDate) - new Date(book.startDate)) / (1000 * 60 * 60 * 24) + 1;
+        const totalDays =
+          (new Date(book.endDate) - new Date(book.startDate)) /
+            (1000 * 60 * 60 * 24) +
+          1;
         totalPages += Math.round((daysRead / totalDays) * book.pageCount);
       }
     });
@@ -622,11 +686,13 @@ app.get("/api/pages-read/:year", async (req, res) => {
     res.json({ year: yearInt, totalPages: totalPages });
   } catch (error) {
     console.error("Error fetching pages read:", error);
-    res.status(500).json({ message: "Failed to calculate pages read", error: error.toString() });
+    res
+      .status(500)
+      .json({
+        message: "Failed to calculate pages read",
+        error: error.toString(),
+      });
   }
 });
-
-
-
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
