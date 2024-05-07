@@ -8,7 +8,8 @@ const SocialPage = () => {
 
   return (
     //<View style={styles.container}>
-    <View style={{ backgroundColor: isDarkMode ? '#333' : '#FFF' }}>
+    //backgroundColor: isDarkMode ? '#333' : '#FFF' }}>
+    <View style={[styles.container, { backgroundColor: isDarkMode ? '#333' : '#FFF' }]}>
       <Text style={styles.text}>Social Page</Text>
     </View>
   );
@@ -19,7 +20,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    //backgroundColor: '#fff',
   },
   text: {
     fontSize: 24,
