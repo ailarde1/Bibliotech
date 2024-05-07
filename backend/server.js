@@ -1,7 +1,14 @@
 require("dotenv").config(); //needed for using .env
 const express = require("express");
+const http = require("http");
+const socketIo = require("socket.io");
+
+
 const axios = require("axios");
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+
 const Book = require("../models/Book"); // Import Book model
 const User = require("../models/User"); // Import the User model
 const bcrypt = require("bcrypt");
@@ -15,6 +22,34 @@ const multer = require("multer");
 const { Readable } = require("stream");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+
+io.on("connection", (socket) => {
+  console.log("A client connected");
+
+  // Example event listener
+  socket.on("chat message", (msg) => {
+    console.log("Message received:", msg);
+    // Broadcast the message to all connected clients
+    io.emit("chat message", msg);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("A client disconnected");
+  });
+});
+const PORT2 = process.env.PORT2 || 5001;
+server.listen(PORT2, () => {
+  console.log(`Server running on port ${PORT2}`);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error('Port is already in use');
+  } else {
+    console.error('An error occurred:', err.message);
+  }
+});
+
 app.use(express.json());
 
 const s3Client = new S3Client({
