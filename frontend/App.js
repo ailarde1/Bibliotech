@@ -12,6 +12,8 @@ import { useTheme } from './pages/ThemeContext';
 // Import all the pages
 import SearchPage from './pages/SearchPage';
 import SocialPage from './pages/SocialPage';
+import FriendsPage from './pages/FriendsPage';
+import ChatScreen from './pages/ChatScreen';
 import BookshelfPage from './pages/BookshelfPage';
 import BookDetailsPage from './pages/BookDetailsPage';
 import PeopleDataStackScreen from './pages/PeopleDataStackScreen';
@@ -20,7 +22,7 @@ import NewBookDetailsPage from './pages/NewBookDetailsPage';
 import LoginPage from './pages/LoginPage';
 import EditBookDetailsPage from './pages/EditBookDetailsPage';
 import EditProfilePage from './pages/EditProfilePage';
-
+import DetailedFriendPage from './pages/DetailedFriendPage';
 import { AuthProvider, useAuth } from './pages/Authentication';
 
 import { ThemeProvider } from './pages/ThemeContext';
@@ -30,7 +32,7 @@ const Tab = createBottomTabNavigator();
 const BookStack = createStackNavigator();
 const SearchStack = createStackNavigator();
 const SettingsStack = createStackNavigator();
-
+const SocialStack = createStackNavigator();
 //Stacks of pages
 function SearchStackScreen() {
   const { isDarkMode } = useTheme();
@@ -49,6 +51,26 @@ function SearchStackScreen() {
     </SearchStack.Navigator>
   );
 }
+
+const SocialStackScreen = () => { 
+  const { isDarkMode } = useTheme();
+  return (
+    <SocialStack.Navigator screenOptions={{
+        headerStyle: {
+          backgroundColor: isDarkMode ? '#333' : '#fff',
+        },
+        headerTintColor: isDarkMode ? '#fff' : '#000',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        }
+    }}>
+      <SocialStack.Screen name="SocialPage" component={SocialPage}/>
+      <SocialStack.Screen name="ChatScreen" component={ChatScreen}/>
+      <SocialStack.Screen name="FriendsPage" component={FriendsPage}/>
+    </SocialStack.Navigator>
+  );
+};
+
 
 
 
@@ -136,8 +158,8 @@ const MainApp = () => {
   return (
     <Tab.Navigator initialRouteName="Bookshelf" screenOptions={screenOptions}>
         <Tab.Screen 
-        name="Social" 
-        component={SocialPage} 
+        name="Social"   
+        component={SocialStackScreen}
         options={{
           tabBarIcon: ({ color }) => (
             <Ionicons name="people-sharp" color={color} size={iconSize} />

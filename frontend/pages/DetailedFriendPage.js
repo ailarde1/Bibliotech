@@ -5,6 +5,13 @@ const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 const DetailedFriendPage = ({ route }) => {
   const { friendUsername } = route.params;
+
+  const navigation = useNavigation();
+
+  const startChat = () => {
+    navigation.navigate("ChatScreen", { friendUsername: userInfo.username });
+  };
+
   const [userInfo, setUserInfo] = useState({
     username: friendUsername,
     imageUrl:
@@ -56,6 +63,7 @@ const DetailedFriendPage = ({ route }) => {
         >
           {userInfo.username}
         </Text>
+        <Button title="Start Chat" onPress={startChatWithFriend} />
       </View>
     </ScrollView>
   );

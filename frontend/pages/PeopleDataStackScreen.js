@@ -3,7 +3,7 @@ import { View, SafeAreaView } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import FriendsPage from "./FriendsPage";
 import MyDataPage from "./MyDataPage";
-import DetailedFriend from "./DetailedFriendPage";
+import DetailedFriendPage from "./DetailedFriendPage";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import { useTheme } from "./ThemeContext";
 const PeopleStack = createStackNavigator();
@@ -17,8 +17,8 @@ function FriendsStackScreen() {
         options={{ headerShown: false }}
       />
       <FriendStack.Screen
-        name="DetailedFriend"
-        component={DetailedFriend}
+        name="DetailedFriendPage"
+        component={DetailedFriendPage}
         options={{ headerShown: false }}
       />
     </FriendStack.Navigator>

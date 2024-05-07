@@ -10,19 +10,27 @@ const SocialPage = () => {
   const navigation = useNavigation(); // Access navigation object
 
   // Function to handle starting a chat
-  const handleStartChat = () => {
+  const NavigatetoChat = () => {
     // Navigate to the ChatScreen component
     navigation.navigate("ChatScreen");
   };
 
+  const NavigatetoFriends = () => {
+    // Navigate to the Friends Screen component
+    navigation.navigate("FriendsPage");
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: isDarkMode ? "#333" : "#FFF" }]}>
-      <Text style={[styles.text, { color: isDarkMode ? "#FFF" : "#333" }]}>
-        Social Page
-      </Text>
-      <Button title="Start Chat" onPress={handleStartChat} />
+    <Text style={[styles.text, { color: isDarkMode ? "#FFF" : "#333" }]}>
+      Welcome to "The BookClub"
+    </Text>
+    <View style={styles.buttonsContainer}>
+      <Button title="Start Chat" onPress={NavigatetoChat} />
+      <Button title="View Friends" onPress={NavigatetoFriends} />
     </View>
-  );
+  </View>
+);
 };
 
 // Define styles

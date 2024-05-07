@@ -8,10 +8,12 @@ import {
   StyleSheet,
   Alert,
   Image,
-  TouchableOpacity,
 } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import * as SecureStore from "expo-secure-store";
 import { useTheme } from "./ThemeContext";
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+
 
 const FriendsPage = ({ navigation }) => {
   const [friends, setFriends] = useState([]);
@@ -26,6 +28,7 @@ const FriendsPage = ({ navigation }) => {
     fetchFriendRequests();
   }, []);
 
+  
   const fetchFriends = async () => {
     const username = await SecureStore.getItemAsync("username");
     try {
@@ -154,7 +157,7 @@ const FriendsPage = ({ navigation }) => {
           <View style={styles.listItem}>
             <TouchableOpacity
               style={styles.listItem}
-              onPress={() =>
+              onPress={() => 
                 navigation.navigate("DetailedFriend", {
                   friendUsername: item.username,
                 })
