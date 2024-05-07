@@ -44,13 +44,13 @@ function SearchStackScreen() {
         fontWeight: 'bold',
       }
     }}>
-      <SearchStack.Screen name="Social" component={SocialPage} />
-      <SearchStack.Screen name="ChatScreen" component={ChatScreen} />
       <SearchStack.Screen name="Search" component={SearchPage} />
       <SearchStack.Screen name="Add Book" component={NewBookDetailsPage} />
     </SearchStack.Navigator>
   );
 }
+
+
 
 const BookStackScreen = () => {
   const { isDarkMode } = useTheme();
