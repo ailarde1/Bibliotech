@@ -135,7 +135,6 @@ const BookDetailsPage = ({ route, navigation }) => {
         <Text
           style={[
             styles.editButtonText,
-            { color: isDarkMode ? "#FFF" : "#333" },
           ]}
         >
           Edit
@@ -182,6 +181,7 @@ const styles = StyleSheet.create({
   },
   editButtonText: {
     fontSize: 20,
+    color: "#ffffff",
   },
 });
 

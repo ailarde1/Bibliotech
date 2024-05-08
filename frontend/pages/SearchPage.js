@@ -72,7 +72,6 @@ function SearchPage() {
         <Text
           style={[
             styles.searchButtonText,
-            { color: isDarkMode ? "#FFF" : "#333" },
           ]}
         >
           Search
@@ -123,7 +122,7 @@ const styles = StyleSheet.create({
   },
   searchButtonText: {
     fontSize: 20,
-    
+    color: "#FFFFFF"
   },
   input: {
     alignSelf: "stretch",

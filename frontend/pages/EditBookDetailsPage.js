@@ -397,6 +397,7 @@ const EditBookDetailsPage = ({ route, navigation }) => {
               style={[
                 styles.bookImage,
                 selectedCoverUrl === book.thumbnail && styles.selectedImage,
+                {borderColor: isDarkMode ? "#005ECB" : "#007AFF"} ,
               ]}
             />
           </TouchableOpacity>
@@ -409,6 +410,7 @@ const EditBookDetailsPage = ({ route, navigation }) => {
                 style={[
                   styles.bookImage,
                   selectedCoverUrl === customCoverUrl && styles.selectedImage,
+                  {borderColor: isDarkMode ? "#005ECB" : "#007AFF"} ,
                 ]}
               />
             </TouchableOpacity>
@@ -422,6 +424,7 @@ const EditBookDetailsPage = ({ route, navigation }) => {
                 style={[
                   styles.bookImage,
                   selectedCoverUrl === uploadedImageUrl && styles.selectedImage,
+                  {borderColor: isDarkMode ? "#005ECB" : "#007AFF"} ,
                 ]}
               />
             </TouchableOpacity>
@@ -836,7 +839,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   selectedImage: {
-    borderWidth: 5,
+    borderWidth: 4,
     borderColor: "#007bff",
   },
   CustomCoverLink: {

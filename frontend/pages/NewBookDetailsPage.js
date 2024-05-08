@@ -445,6 +445,7 @@ function NewBookDetailsPage({ route, navigation }) {
                 style={[
                   styles.bookImage,
                   selectedCoverUrl === newCoverUrl && styles.selectedImage,
+                  {borderColor: isDarkMode ? "#005ECB" : "#007AFF"} ,
                 ]}
               />
             </TouchableOpacity>
@@ -458,6 +459,7 @@ function NewBookDetailsPage({ route, navigation }) {
                 style={[
                   styles.bookImage,
                   selectedCoverUrl === customCoverUrl && styles.selectedImage,
+                  {borderColor: isDarkMode ? "#005ECB" : "#007AFF"} ,
                 ]}
               />
             </TouchableOpacity>
@@ -471,6 +473,7 @@ function NewBookDetailsPage({ route, navigation }) {
                 style={[
                   styles.bookImage,
                   selectedCoverUrl === uploadedImageUrl && styles.selectedImage,
+                  {borderColor: isDarkMode ? "#005ECB" : "#007AFF"} ,
                 ]}
               />
             </TouchableOpacity>
@@ -905,7 +908,7 @@ const styles = StyleSheet.create({
     color: "white",
   },
   selectedImage: {
-    borderWidth: 5,
+    borderWidth: 4,
     borderColor: "#007bff",
   },
   CustomCoverLink: {
