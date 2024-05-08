@@ -3,11 +3,13 @@ import { View, SafeAreaView } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import FriendsPage from "./FriendsPage";
 import MyDataPage from "./MyDataPage";
+import ChatScreen from "./ChatScreen";
 import DetailedFriendPage from "./DetailedFriendPage";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import { useTheme } from "./ThemeContext";
 const PeopleStack = createStackNavigator();
 const FriendStack = createStackNavigator();
+
 function FriendsStackScreen() {
   return (
     <FriendStack.Navigator>
@@ -17,8 +19,13 @@ function FriendsStackScreen() {
         options={{ headerShown: false }}
       />
       <FriendStack.Screen
-        name="DetailedFriendPage"
+        name="DetailedFriend"
         component={DetailedFriendPage}
+        options={{ headerShown: false }}
+      />
+      <FriendStack.Screen
+        name="ChatScreen"
+        component={ChatScreen}
         options={{ headerShown: false }}
       />
     </FriendStack.Navigator>

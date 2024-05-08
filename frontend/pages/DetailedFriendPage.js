@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, Button
+ } from "react-native";
 import { useTheme } from "./ThemeContext";
+import ChatScreen from "./ChatScreen";
+import { useNavigation } from '@react-navigation/native';
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
+
 
 const DetailedFriendPage = ({ route }) => {
   const { friendUsername } = route.params;
 
   const navigation = useNavigation();
 
-  const startChat = () => {
+  const startChatWithFriend = () => {
     navigation.navigate("ChatScreen", { friendUsername: userInfo.username });
   };
 
