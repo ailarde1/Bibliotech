@@ -64,14 +64,15 @@ function NewBookDetailsPage({ route, navigation }) {
     book.volumeInfo.publishedDate
   );
 
-  const [fetchedPageCount, setFetchedPageCount] = useState("");
-  const [isCustomPageCount, setIsCustomPageCount] = useState(false);
-  const [selectedPageCount, setSelectedPageCount] = useState("");
-
   const [description, setDescription] = useState(book.volumeInfo.description);
   const [pageCount, setPageCount] = useState(
     book.volumeInfo.pageCount.toString()
   );
+
+  const [fetchedPageCount, setFetchedPageCount] = useState("");
+  const [isCustomPageCount, setIsCustomPageCount] = useState(false);
+  const [selectedPageCount, setSelectedPageCount] = useState(pageCount);
+
   const [readStatus, setReadStatus] = useState("not read");
   const [readFormat, setReadFormat] = useState("physical");
   const [ebookPageCount, setEbookPageCount] = useState("");
@@ -369,6 +370,11 @@ function NewBookDetailsPage({ route, navigation }) {
     </TouchableOpacity>
   );
 
+  useEffect(() => {
+    console.log("Selected Page Count:", selectedPageCount);
+    console.log("Is Custom Page Count:", isCustomPageCount);
+  }, [selectedPageCount, isCustomPageCount]);
+
   //upload Image. Had bug where first upload would always fail. Cheap solution was to retry it multiple times.
   const uploadImage = async (uri) => {
     const formData = new FormData();
@@ -554,13 +560,13 @@ function NewBookDetailsPage({ route, navigation }) {
               flex: 2,
               marginLeft: 0,
               backgroundColor: isDarkMode ? "#DDDDDD" : "#FFF",
-            }, // Adjust background color here
+            },
           ]}
           placeholder="Select Page Count"
           data={pageCountOptions}
           labelField="label"
           valueField="value"
-          value={isCustomPageCount ? "custom" : pageCount}
+          value={isCustomPageCount ? "custom" : selectedPageCount}
           onChange={(item) => {
             if (item.value === "custom") {
               setIsCustomPageCount(true);
