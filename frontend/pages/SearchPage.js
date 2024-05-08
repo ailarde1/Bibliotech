@@ -65,11 +65,20 @@ function SearchPage() {
           onSubmitEditing={handleSearch}
           returnKeyType="search"
         />
-        <Button
-          color={isDarkMode ? "#005ECB" : "#007AFF"}
-          title="Search"
-          onPress={handleSearch}
-        />
+
+<TouchableOpacity onPress={handleSearch} style={[styles.searchButton,
+        {backgroundColor: isDarkMode ? "#005ECB" : "#007AFF"}]
+      }>
+        <Text
+          style={[
+            styles.searchButtonText,
+            { color: isDarkMode ? "#FFF" : "#333" },
+          ]}
+        >
+          Search
+        </Text>
+        </TouchableOpacity>
+
 
         {books.map((book) => (
           <TouchableOpacity
@@ -104,6 +113,17 @@ const styles = StyleSheet.create({
     marginBottom: -40,
     padding: 0,
     paddingHorizontal: 20,
+  },
+  searchButton: {
+    marginHorizontal: 0,
+    marginTop: 0,
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  searchButtonText: {
+    fontSize: 20,
+    
   },
   input: {
     alignSelf: "stretch",

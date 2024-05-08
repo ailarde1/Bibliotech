@@ -129,7 +129,9 @@ const BookDetailsPage = ({ route, navigation }) => {
           {book.description}
         </Text>
       </View>
-      <TouchableOpacity onPress={navigateToEdit} style={styles.editButton}>
+      <TouchableOpacity onPress={navigateToEdit} style={[styles.editButton,
+        {backgroundColor: isDarkMode ? "#005ECB" : "#007AFF"}]
+      }>
         <Text
           style={[
             styles.editButtonText,
