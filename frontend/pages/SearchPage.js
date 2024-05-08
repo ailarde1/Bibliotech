@@ -66,18 +66,15 @@ function SearchPage() {
           returnKeyType="search"
         />
 
-<TouchableOpacity onPress={handleSearch} style={[styles.searchButton,
-        {backgroundColor: isDarkMode ? "#005ECB" : "#007AFF"}]
-      }>
-        <Text
+        <TouchableOpacity
+          onPress={handleSearch}
           style={[
-            styles.searchButtonText,
+            styles.searchButton,
+            { backgroundColor: isDarkMode ? "#005ECB" : "#007AFF" },
           ]}
         >
-          Search
-        </Text>
+          <Text style={[styles.searchButtonText]}>Search</Text>
         </TouchableOpacity>
-
 
         {books.map((book) => (
           <TouchableOpacity
@@ -122,7 +119,7 @@ const styles = StyleSheet.create({
   },
   searchButtonText: {
     fontSize: 20,
-    color: "#FFFFFF"
+    color: "#FFFFFF",
   },
   input: {
     alignSelf: "stretch",

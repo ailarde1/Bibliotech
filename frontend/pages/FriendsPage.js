@@ -213,11 +213,16 @@ const FriendsPage = ({ navigation }) => {
         returnKeyType="search"
         onSubmitEditing={handleSearch}
       />
-      <Button
-        color={isDarkMode ? "#005ECB" : "#007AFF"}
-        title="Search"
-        onPress={handleSearch}
-      />
+<TouchableOpacity
+          onPress={handleSearch}
+          style={[
+            styles.searchButton,
+            { backgroundColor: isDarkMode ? "#005ECB" : "#007AFF" },
+          ]}
+        >
+          <Text style={[styles.searchButtonText]}>Search</Text>
+        </TouchableOpacity>
+
       <FlatList
         data={searchResults}
         keyExtractor={(item) => item._id}
@@ -229,6 +234,7 @@ const FriendsPage = ({ navigation }) => {
             >
               {item.username}
             </Text>
+            
             <Button
               color={isDarkMode ? "#005ECB" : "#007AFF"}
               title="Add"
@@ -268,6 +274,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: 10,
+  },
+  searchButton: {
+    marginHorizontal: 0,
+    marginTop: 0,
+    padding: 10,
+    marginBottom: 0,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  searchButtonText: {
+    fontSize: 20,
+    color: "#FFFFFF",
   },
   input: {
     alignSelf: "stretch",
