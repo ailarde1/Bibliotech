@@ -85,8 +85,8 @@ function NewBookDetailsPage({ route, navigation }) {
       label: `${fetchedPageCount} pages (OpenLibrary API)`,
       value: fetchedPageCount,
     },
-    { label: "Custom...", value: "custom" },
-  ].filter(Boolean);
+    { label: "Custom...", value: "custom" }
+  ].filter(option => option && option.value !== "0"); //Filter out page number counts that are '0'
 
   const axiosInstance = axios.create({
     baseURL: apiUrl,
