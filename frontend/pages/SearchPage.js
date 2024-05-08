@@ -38,6 +38,10 @@ function SearchPage() {
   };
 
   const handleSearch = () => {
+    if (searchTerm.trim() === "") {
+      setBooks([]);
+      return;
+    }
     fetchSearchResults(searchTerm);
   };
 

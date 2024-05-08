@@ -3,7 +3,6 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 
-
 const axios = require("axios");
 const app = express();
 const server = http.createServer(app);
@@ -42,11 +41,11 @@ server.listen(PORT2, () => {
   console.log(`Server running on port ${PORT2}`);
 });
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error('Port is already in use');
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error("Port is already in use");
   } else {
-    console.error('An error occurred:', err.message);
+    console.error("An error occurred:", err.message);
   }
 });
 
@@ -474,12 +473,10 @@ app.patch("/api/updatePage", async (req, res) => {
   const pagesInt = parseInt(currentPage, 10);
 
   if (!bookId || isNaN(pagesInt)) {
-    return res
-      .status(400)
-      .json({
-        message:
-          "Book ID and current page must be provided and current page must be a number",
-      });
+    return res.status(400).json({
+      message:
+        "Book ID and current page must be provided and current page must be a number",
+    });
   }
 
   try {
@@ -536,12 +533,10 @@ app.get("/api/friends/requests", async (req, res) => {
 
     res.json({ requests: user.requestsReceived });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error retrieving friend requests",
-        error: error.toString(),
-      });
+    res.status(500).json({
+      message: "Error retrieving friend requests",
+      error: error.toString(),
+    });
   }
 });
 
@@ -569,12 +564,10 @@ app.post("/api/friends/accept", async (req, res) => {
       friend: { username: requester.username, imageUrl: requester.imageUrl },
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error accepting friend request",
-        error: error.toString(),
-      });
+    res.status(500).json({
+      message: "Error accepting friend request",
+      error: error.toString(),
+    });
   }
 });
 
@@ -592,22 +585,20 @@ app.post("/api/friends/decline", async (req, res) => {
 
     res.json({ message: "Friend request declined" });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error declining friend request",
-        error: error.toString(),
-      });
+    res.status(500).json({
+      message: "Error declining friend request",
+      error: error.toString(),
+    });
   }
 });
 
 app.get("/api/users/search", async (req, res) => {
   const { search } = req.query;
-
+  const limit = 5;
   try {
-    const users = await User.find({ username: new RegExp(search, "i") }).select(
-      "username imageUrl"
-    );
+    const users = await User.find({ username: new RegExp(`^${search}`, "i") })
+      .select("username imageUrl")
+      .limit(limit);
     res.json(users);
   } catch (error) {
     res
@@ -642,19 +633,15 @@ app.post("/api/friends/send-request", async (req, res) => {
     await toUser.save();
     await fromUser.save();
 
-    res
-      .status(200)
-      .json({
-        message: "friend request sent successfully",
-        recipient: { username: toUser.username, imageUrl: toUser.imageUrl },
-      });
+    res.status(200).json({
+      message: "friend request sent successfully",
+      recipient: { username: toUser.username, imageUrl: toUser.imageUrl },
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error sending friend request",
-        error: error.toString(),
-      });
+    res.status(500).json({
+      message: "Error sending friend request",
+      error: error.toString(),
+    });
   }
 });
 
@@ -721,12 +708,10 @@ app.get("/api/pages-read/:year", async (req, res) => {
     res.json({ year: yearInt, totalPages: totalPages });
   } catch (error) {
     console.error("Error fetching pages read:", error);
-    res
-      .status(500)
-      .json({
-        message: "Failed to calculate pages read",
-        error: error.toString(),
-      });
+    res.status(500).json({
+      message: "Failed to calculate pages read",
+      error: error.toString(),
+    });
   }
 });
 

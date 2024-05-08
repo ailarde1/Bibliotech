@@ -103,6 +103,11 @@ const FriendsPage = ({ navigation }) => {
   };
 
   const handleSearch = async () => {
+      if (searchQuery.trim() === ""){
+        setSearchResults([]);
+        return;
+      }
+
     const username = await SecureStore.getItemAsync("username");
     try {
       const response = await fetch(
@@ -206,6 +211,7 @@ const FriendsPage = ({ navigation }) => {
         value={searchQuery}
         placeholder="Search..."
         returnKeyType="search"
+        onSubmitEditing={handleSearch}
       />
       <Button
         color={isDarkMode ? "#005ECB" : "#007AFF"}
