@@ -724,11 +724,15 @@ const EditBookDetailsPage = ({ route, navigation }) => {
           </View>
         )}
       </View>
-      <Button
-        color={isDarkMode ? "#005ECB" : "#007AFF"}
-        title="Submit"
-        onPress={submitEdits}
-      />
+      <TouchableOpacity
+          onPress={submitEdits}
+          style={[
+            styles.submitButton,
+            { backgroundColor: isDarkMode ? "#005ECB" : "#007AFF" },
+          ]}
+        >
+          <Text style={[styles.submitButtonText]}>Submit</Text>
+        </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -755,6 +759,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginVertical: 0,
   },
+  submitButton: {
+    marginHorizontal: 10,
+    marginBottom: 5,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "#007AFF",
+    alignItems: "center",
+  },
+  submitButtonText: {
+    fontSize: 20,
+    color: "#FFFFFF",
+  },
   input: {
     alignSelf: "stretch",
     borderWidth: 1,
@@ -765,7 +781,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     borderRadius: 8,
-    backgroundColor: "white",
     fontSize: 16,
   },
   description: {
