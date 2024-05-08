@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   Image,
+  Alert,
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { useAuth } from "./Authentication";
@@ -17,13 +18,13 @@ import { useTheme } from "./ThemeContext";
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 const SettingsProfilePage = ({ navigation }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const { toggleTheme } = useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
+  
   const { setIsAuthenticated } = useAuth();
   const [userInfo, setUserInfo] = useState({ username: "", imageUrl: "" });
+
   const [refreshing, setRefreshing] = useState(false);
-  const { refreshTrigger } = useRefresh();
-  const { triggerRefresh } = useRefresh();
+  const { refreshTrigger, triggerRefresh } = useRefresh();
 
   const fetchUserInfo = async () => {
     const username = await SecureStore.getItemAsync("username");
@@ -49,10 +50,6 @@ const SettingsProfilePage = ({ navigation }) => {
     }
   };
 
-  const handleDarkModeToggle = () => {
-    setIsDarkMode(!isDarkMode);
-    toggleTheme();
-  };
   const navigateToEditProfile = () => {
     navigation.navigate("EditProfile", { userInfo: userInfo });
   };
@@ -70,6 +67,38 @@ const SettingsProfilePage = ({ navigation }) => {
   useEffect(() => {
     fetchUserInfo();
   }, []);
+
+  const updateDarkModeSetting = async (newDarkMode) => {
+    const username = await SecureStore.getItemAsync("username");
+    if (!username) {
+      console.error("Username not found");
+      return;
+    }
+  
+    try {
+      const response = await fetch(`${apiUrl}/user/settings`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, darkMode: newDarkMode })
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log("Settings updated successfully:", data);
+    } catch (error) {
+    }
+  };
+
+  const handleDarkModeToggle = () => {
+    const newDarkMode = !isDarkMode;
+    toggleTheme();
+    updateDarkModeSetting(newDarkMode).catch(console.error);
+  };
 
   useEffect(() => {
     if (refreshTrigger === "SettingsProfilePage") {
@@ -100,7 +129,7 @@ const SettingsProfilePage = ({ navigation }) => {
       </View>
       <View style={styles.settingsContainer}>
         <View style={styles.settingsRow}>
-          <Switch value={isDarkMode} onValueChange={handleDarkModeToggle} />
+        <Switch value={isDarkMode} onValueChange={handleDarkModeToggle} />
           <Text
             style={[
               styles.settingsText,

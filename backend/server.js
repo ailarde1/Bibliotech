@@ -435,7 +435,8 @@ app.post("/api/login", async (req, res) => {
       // Compares submitted password with hash that is stored
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
-        res.status(200).json({ message: "Login successful", user: user });
+        res.status(200).json({message: "Login successful",
+        user: { username: user.username, darkMode: user.darkMode }});
       } else {
         res.status(401).json({ message: "Incorrect Credentials" });
       }
@@ -712,6 +713,26 @@ app.get("/api/pages-read/:year", async (req, res) => {
       message: "Failed to calculate pages read",
       error: error.toString(),
     });
+  }
+});
+
+app.patch("/api/user/settings", async (req, res) => {
+  const { username, darkMode } = req.body;
+
+  try {
+    const user = await User.findOneAndUpdate(
+      { username: username },
+      { $set: { darkMode: darkMode } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    res.json({ message: "Settings updated", user: user });
+  } catch (error) {
+    res.status(500).send("Error: " + error.message);
   }
 });
 

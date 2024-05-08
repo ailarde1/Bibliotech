@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useAuth } from "./Authentication";
 import * as SecureStore from "expo-secure-store";
+import { useTheme } from "./ThemeContext";
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 import { useRefresh } from "./RefreshContext";
@@ -18,6 +19,7 @@ const LoginPage = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { setIsAuthenticated } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const { triggerRefresh } = useRefresh();
 
   const storeCredentials = async (username) => {
@@ -66,6 +68,9 @@ const LoginPage = ({ navigation }) => {
       Alert.alert("Login Success", "You have been logged in successfully.");
       await storeCredentials(username);
       setIsAuthenticated(true);
+      if (isDarkMode !== data.user.darkMode) {
+        toggleTheme();
+      }
       triggerRefresh("BookshelfPage");
       triggerRefresh("SettingsProfilePage");
     } else {
