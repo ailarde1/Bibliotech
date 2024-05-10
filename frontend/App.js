@@ -10,7 +10,10 @@ import { useTheme } from "./pages/ThemeContext";
 
 // Import all the pages
 import SearchPage from "./pages/SearchPage";
-import SocialPage from "./pages/SocialPage";
+import SocialPage from "./pages/BookClubPages/SocialPage";
+import SearchBookClub from "./pages/BookClubPages/SearchBookClub";
+import CreateBookClub from "./pages/BookClubPages/CreateBookClub";
+import BookClubShelfSelecting from "./pages/BookClubPages/BookClubBookSelecting";
 import FriendsPage from "./pages/FriendsPage";
 import ChatScreen from "./pages/ChatScreen";
 import BookshelfPage from "./pages/BookshelfPage";
@@ -68,7 +71,10 @@ const SocialStackScreen = () => {
         },
       }}
     >
-      <SocialStack.Screen name="SocialPage" component={SocialPage} />
+      <SocialStack.Screen name="BookClub" component={SocialPage} />
+      <SocialStack.Screen name="SearchBookClub" component={SearchBookClub} />
+      <SocialStack.Screen name="CreateBookClub" component={CreateBookClub} />
+      <SocialStack.Screen name="BookClubShelfSelecting" component={BookClubShelfSelecting} />
       <SocialStack.Screen name="ChatScreen" component={ChatScreen} />
       <SocialStack.Screen name="FriendsPage" component={FriendsPage} />
     </SocialStack.Navigator>
@@ -169,6 +175,7 @@ const MainApp = () => {
         name="Social"
         component={SocialStackScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="people-sharp" color={color} size={iconSize} />
           ),
