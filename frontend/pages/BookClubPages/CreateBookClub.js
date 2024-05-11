@@ -9,10 +9,14 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as SecureStore from "expo-secure-store";
 import { useTheme } from "../ThemeContext";
 import { useNavigation, useRoute } from "@react-navigation/native";
+
+const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 const CreateBookClub = () => {
   const { isDarkMode } = useTheme();
@@ -36,14 +40,66 @@ const CreateBookClub = () => {
     navigation.navigate("BookClubShelfSelecting");
   };
 
-  const onChangeStartDate = (event, selectedDate) => {
-    const currentDate = selectedDate || startDate;
-    setStartDate(currentDate);
+  const renderDatePicker = (date, setDate, showPicker, setShowPicker) =>
+    showPicker && (
+      <DateTimePicker
+        value={date || new Date()}
+        mode="date"
+        display="default"
+        onChange={(event, selectedDate) => {
+          setShowPicker(false);
+          setDate(selectedDate || date);
+        }}
+      />
+    );
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString();
   };
 
-  const onChangeEndDate = (event, selectedDate) => {
-    const currentDate = selectedDate || endDate;
-    setEndDate(currentDate);
+  const toggleStartDatePicker = () => {
+    setShowStartDatePicker(!showStartDatePicker);
+  };
+
+  const toggleEndDatePicker = () => {
+    setShowEndDatePicker(!showEndDatePicker);
+  };
+
+  const submitBookClub = async () => {
+    if (!selectedBook || !bookClubName || !startDate || !endDate) {
+      Alert.alert("Error", "Fill all fields before submitting.");
+      return;
+    }
+    const username = await SecureStore.getItemAsync("username");
+    const body = {
+      name: bookClubName,
+      bookId: selectedBook._id,
+      username: username, 
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    };
+
+    try {
+      const response = await fetch(`${apiUrl}/bookclub/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      const jsonResponse = await response.json();
+
+      if (response.ok) {
+        Alert.alert("Success", "Book club created successfully!");
+        navigation.goBack();
+      } else {
+        Alert.alert("Error", jsonResponse.message || "An error occurred");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "An error occurred while trying to create the book club.");
+    }
   };
 
   return (
@@ -54,23 +110,28 @@ const CreateBookClub = () => {
         { backgroundColor: isDarkMode ? "#333" : "#EEE" },
       ]}
     >
-      <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>Book Club Name:</Text>
       <TextInput
-        style={styles.input}
-        backgroundColor={isDarkMode ? "#DDDDDD" : "#FFF"}
+        style={[styles.input, { color: isDarkMode ? "#FFF" : "#333" }]}
         onChangeText={setBookClubName}
         value={bookClubName}
         placeholder="Enter Book Club Name"
       />
       {selectedBook ? (
         <View style={styles.bookDetail}>
-          <Image source={{ uri: selectedBook.thumbnail }} style={styles.bookImage} />
-          <Text style={[styles.bookTitle, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          <Image
+            source={{ uri: selectedBook.thumbnail }}
+            style={styles.bookImage}
+          />
+          <Text
+            style={[styles.bookTitle, { color: isDarkMode ? "#FFF" : "#333" }]}
+          >
             {selectedBook.title}
           </Text>
         </View>
       ) : (
-        <Text style={[styles.bookText, { color: isDarkMode ? "#FFF" : "#333" }]}>
+        <Text
+          style={[styles.bookText, { color: isDarkMode ? "#FFF" : "#333" }]}
+        >
           No book selected
         </Text>
       )}
@@ -79,31 +140,69 @@ const CreateBookClub = () => {
         onPress={handleSelectBook}
         color={isDarkMode ? "#AAA" : "#333"}
       />
-      <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>Start Date:</Text>
-      <Button color={isDarkMode ? "#005ECB" : "#007AFF"} title="Select Start Date" onPress={() => setShowStartDatePicker(true)} />
-      {showStartDatePicker && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={startDate}
-          mode="date"
-          is24Hour={true}
-          display="default"
-          onChange={onChangeStartDate}
+      <View style={styles.inputContainer}>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Start Date:
+        </Text>
+        <Button
+          color={isDarkMode ? "#005ECB" : "#007AFF"}
+          title="Select Start Date"
+          onPress={toggleStartDatePicker}
         />
-      )}
-      <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>End Date:</Text>
-      <Button color={isDarkMode ? "#005ECB" : "#007AFF"} title="Select End Date" onPress={() => setShowEndDatePicker(true)} />
-      {showEndDatePicker && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={endDate}
-          mode="date"
-          is24Hour={true}
-          display="default"
-          onChange={onChangeEndDate}
+        <Text
+          style={[
+            {
+              color:
+                Platform.OS === "ios"
+                  ? "transparent"
+                  : isDarkMode
+                    ? "#FFF"
+                    : "#333",
+            },
+            styles.dateDisplay,
+          ]}
+        >
+          {startDate ? formatDate(startDate) : "No date selected"}
+        </Text>
+        {renderDatePicker(
+          startDate,
+          setStartDate,
+          showStartDatePicker,
+          setShowStartDatePicker
+        )}
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
+          Finish Date:
+        </Text>
+        <Button
+          color={isDarkMode ? "#005ECB" : "#007AFF"}
+          title="Select Finish Date"
+          onPress={toggleEndDatePicker}
         />
-      )}
-              <Text
+        <Text
+          style={[
+            {
+              color:
+                Platform.OS === "ios"
+                  ? "transparent"
+                  : isDarkMode
+                    ? "#FFF"
+                    : "#333",
+            },
+            styles.dateDisplay,
+          ]}
+        >
+          {endDate ? formatDate(endDate) : "No date selected"}
+        </Text>
+        {renderDatePicker(
+          endDate,
+          setEndDate,
+          showEndDatePicker,
+          setShowEndDatePicker
+        )}
+      </View>
+      <Text
         style={[
           {
             color:
@@ -115,16 +214,18 @@ const CreateBookClub = () => {
           },
           styles.dateDisplay,
         ]}
-      > </Text>
-            <TouchableOpacity
-          
-          style={[
-            styles.submitButton,
-            { backgroundColor: isDarkMode ? "#005ECB" : "#007AFF" },
-          ]}
-        >
-          <Text style={[styles.submitButtonText]}>Submit</Text>
-        </TouchableOpacity>
+      >
+        {" "}
+      </Text>
+      <TouchableOpacity
+        onPress={submitBookClub}
+        style={[
+          styles.submitButton,
+          { backgroundColor: isDarkMode ? "#005ECB" : "#007AFF" },
+        ]}
+      >
+        <Text style={styles.submitButtonText}>Submit</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -187,7 +288,7 @@ const styles = StyleSheet.create({
   bookImage: {
     width: 180,
     height: 270,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   bookTitle: {
     fontSize: 20,

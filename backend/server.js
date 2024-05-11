@@ -10,6 +10,8 @@ const io = socketIo(server);
 
 const Book = require("../models/Book"); // Import Book model
 const User = require("../models/User"); // Import the User model
+const BookClub = require("../models/Bookclub"); //Import the Bookclub Model
+
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const cors = require("cors");
@@ -21,6 +23,9 @@ const multer = require("multer");
 const { Readable } = require("stream");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+
+//app.use(express.json());
+//app.use(cors());
 
 io.on("connection", (socket) => {
   console.log("A client connected");
@@ -98,9 +103,6 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
     res.status(500).send("Failed to upload file");
   }
 });
-
-app.use(express.json());
-app.use(cors());
 
 //Search endpoint for Google Api.
 app.get("/api/search", async (req, res) => {
@@ -735,5 +737,79 @@ app.patch("/api/user/settings", async (req, res) => {
     res.status(500).send("Error: " + error.message);
   }
 });
+
+app.post('/api/bookclub/create', async (req, res) => {
+  const { name, bookId, username, startDate, endDate } = req.body;
+
+  try {
+      // Find the admin user based on username
+      const admin = await User.findOne({ username: username });
+      if (!admin) {
+          return res.status(404).json({ message: "Username Not found" });
+      }
+
+      // Find the book based on book ID
+      const book = await Book.findById(bookId);  //Maybe switch to ISBN. Allow mutiple copies of books per user.
+      if (!book) {
+          return res.status(404).json({ message: "Book not found" });
+      }
+
+      // Create a new Book Club
+      const newBookClub = new BookClub({
+          name,
+          book: book._id,
+          members: [admin._id],
+          admin: admin._id,
+          startDate: new Date(startDate),
+          endDate: new Date(endDate),
+      });
+
+      // Save the new Book Club to the database
+      await newBookClub.save();
+
+      // Respond with the new bookclub
+      res.status(201).json(newBookClub);
+  } catch (error) {
+      console.error("Failed to create bookclub:", error);
+      res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get('/api/bookclub/check-membership', async (req, res) => {
+  const { username } = req.query;
+
+  try {
+      // Find the user based on username
+      const user = await User.findOne({ username: username });
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      // Find bookclubs where the user is a member
+      const bookClubs = await BookClub.find({ members: user._id });
+
+      if (bookClubs.length > 0) {
+          // User is a member of one or more book clubs
+          res.status(200).json({
+              isMember: true,
+              bookClubs: bookClubs,
+          });
+      } else {
+          // User is not a member of any book clubs
+          res.status(200).json({
+              isMember: false,
+          });
+      }
+    } catch (error) {
+      console.error("Failed to check for bookclub:", error);
+      res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+//Need .get for bookclub/search
+//Need .patch for bookclub/leave
+//Need .patch for bookclub/updateSettings
+//Need .get for bookclun/userReadProgrogress
+
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
