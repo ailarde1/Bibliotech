@@ -437,12 +437,10 @@ app.post("/api/login", async (req, res) => {
       // Compares submitted password with hash that is stored
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
-        res
-          .status(200)
-          .json({
-            message: "Login successful",
-            user: { username: user.username, darkMode: user.darkMode },
-          });
+        res.status(200).json({
+          message: "Login successful",
+          user: { username: user.username, darkMode: user.darkMode },
+        });
       } else {
         res.status(401).json({ message: "Incorrect Credentials" });
       }
@@ -821,32 +819,82 @@ app.get("/api/bookclub/search", async (req, res) => {
       .limit(limit);
     res.json(bookclubs);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error searching for bookclubs",
-        error: error.toString(),
-      });
+    res.status(500).json({
+      message: "Error searching for bookclubs",
+      error: error.toString(),
+    });
   }
 });
 
 app.patch("/api/bookclub/join", async (req, res) => {
   const { username, bookClubName } = req.query;
-  console.log("starting");
+  //console.log("starting");
   try {
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).send("User not found");
     }
-    const bookclub = await BookClub.findOneAndUpdate({ name: bookClubName });
+    const bookclub = await BookClub.findOne({ name: bookClubName }).populate(
+      "book"
+    );
     if (!bookclub) {
       return res.status(404).send("BookClub not found");
     }
+    if (bookclub.members.includes(user._id)) {
+      return res.status(409).send("User already a member");
+    }
+
     bookclub.members.push(user._id);
     await bookclub.save();
 
-    res.json({ message: "Bookclub Membership Added", user: user });
+    const { book } = bookclub;
+    const existingBook = await Book.findOne({
+      isbn: book.isbn,
+      userId: user._id,
+    });
+
+    if (existingBook) {
+      // If the book already exists for the user, do not add a new entry
+      res
+        .status(200)
+        .json({
+          message: "Joined book club, but book already exists in your library",
+          BookClub: bookclub,
+          book: null,
+        });
+    } else {
+      // Create a new book entry for the user
+      let newBook = new Book({
+        title: bookclub.book.title,
+        authors: bookclub.book.authors,
+        publishedDate: bookclub.book.publishedDate,
+        thumbnail: bookclub.book.thumbnail,
+        description: bookclub.book.description,
+        pageCount: bookclub.book.pageCount,
+        height: bookclub.book.height,
+        length: bookclub.book.length,
+        width: bookclub.book.width,
+        isbn: bookclub.book.isbn,
+        readStatus: "reading",
+        readFormat: bookclub.book.readFormat,
+        audioLength: bookclub.book.audioLength,
+        ebookPageCount: bookclub.book.ebookPageCount,
+        userId: user._id,
+        startDate: bookclub.startDate,
+        readYear: null,
+        dateFormat: "date",
+      });
+      newBook = await newBook.save();
+      res
+        .status(201)
+        .json({
+          message: "Joined book club and book added to your library",
+          BookClub: bookclub,
+          book: newBook,
+        });
+    }
   } catch (error) {
+    console.error("Error joining book club or adding book:", error);
     res.status(500).send("Error: " + error.message);
   }
 });
