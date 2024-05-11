@@ -12,8 +12,7 @@ import {
 import { TouchableOpacity } from "react-native-gesture-handler";
 import * as SecureStore from "expo-secure-store";
 import { useTheme } from "./ThemeContext";
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
-
+import { useNavigation } from "@react-navigation/native"; // Import useNavigation hook
 
 const FriendsPage = ({ navigation }) => {
   const [friends, setFriends] = useState([]);
@@ -28,7 +27,6 @@ const FriendsPage = ({ navigation }) => {
     fetchFriendRequests();
   }, []);
 
-  
   const fetchFriends = async () => {
     const username = await SecureStore.getItemAsync("username");
     try {
@@ -103,10 +101,10 @@ const FriendsPage = ({ navigation }) => {
   };
 
   const handleSearch = async () => {
-      if (searchQuery.trim() === ""){
-        setSearchResults([]);
-        return;
-      }
+    if (searchQuery.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
 
     const username = await SecureStore.getItemAsync("username");
     try {
@@ -159,10 +157,15 @@ const FriendsPage = ({ navigation }) => {
         data={friends}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <View style={styles.listItem}>
+          <View
+            style={[
+              styles.listItem,
+              { backgroundColor: isDarkMode ? "#444445" : "#FFF" },
+            ]}
+          >
             <TouchableOpacity
               style={styles.listItem}
-              onPress={() => 
+              onPress={() =>
                 navigation.navigate("DetailedFriend", {
                   friendUsername: item.username,
                 })
@@ -213,28 +216,33 @@ const FriendsPage = ({ navigation }) => {
         returnKeyType="search"
         onSubmitEditing={handleSearch}
       />
-<TouchableOpacity
-          onPress={handleSearch}
-          style={[
-            styles.searchButton,
-            { backgroundColor: isDarkMode ? "#005ECB" : "#007AFF" },
-          ]}
-        >
-          <Text style={[styles.searchButtonText]}>Search</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        onPress={handleSearch}
+        style={[
+          styles.searchButton,
+          { backgroundColor: isDarkMode ? "#005ECB" : "#007AFF" },
+        ]}
+      >
+        <Text style={[styles.searchButtonText]}>Search</Text>
+      </TouchableOpacity>
 
       <FlatList
         data={searchResults}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <View style={styles.searchItem}>
+          <View
+            style={[
+              styles.searchItem,
+              { backgroundColor: isDarkMode ? "#444445" : "#FFF" },
+            ]}
+          >
             <Image source={{ uri: item.imageUrl }} style={styles.image} />
             <Text
               style={[styles.item, { color: isDarkMode ? "#FFF" : "#333" }]}
             >
               {item.username}
             </Text>
-            
+
             <Button
               color={isDarkMode ? "#005ECB" : "#007AFF"}
               title="Add"
@@ -257,16 +265,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "black",
-    marginTop: 20,
+    marginTop: 0,
   },
   item: {
-    padding: 10,
-    fontSize: 18,
+    padding: 5,
+    fontSize: 20,
   },
   listItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
+    padding: 8,
+    marginBottom: 5,
   },
   list: {},
   requestItem: {
@@ -303,6 +312,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 10,
+    marginTop: 5,
   },
   image: {
     width: 50,

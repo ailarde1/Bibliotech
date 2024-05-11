@@ -11,6 +11,7 @@ const SocialPage = () => {
   const navigation = useNavigation();
   const [isMember, setIsMember] = useState(false);
   const [bookClubs, setBookClubs] = useState([]);
+  
 
   useEffect(() => {
     const fetchMembershipStatus = async () => {

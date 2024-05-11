@@ -111,7 +111,8 @@ const CreateBookClub = () => {
       ]}
     >
       <TextInput
-        style={[styles.input, { color: isDarkMode ? "#FFF" : "#333" }]}
+        style={styles.input}
+        backgroundColor={isDarkMode ? "#DDDDDD" : "#FFF"}
         onChangeText={setBookClubName}
         value={bookClubName}
         placeholder="Enter Book Club Name"
@@ -271,7 +272,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 15,
     padding: 10,
-    flex: 0,
     fontSize: 18,
     borderRadius: 8,
     fontSize: 16,

@@ -437,8 +437,12 @@ app.post("/api/login", async (req, res) => {
       // Compares submitted password with hash that is stored
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
-        res.status(200).json({message: "Login successful",
-        user: { username: user.username, darkMode: user.darkMode }});
+        res
+          .status(200)
+          .json({
+            message: "Login successful",
+            user: { username: user.username, darkMode: user.darkMode },
+          });
       } else {
         res.status(401).json({ message: "Incorrect Credentials" });
       }
@@ -738,71 +742,112 @@ app.patch("/api/user/settings", async (req, res) => {
   }
 });
 
-app.post('/api/bookclub/create', async (req, res) => {
+app.post("/api/bookclub/create", async (req, res) => {
   const { name, bookId, username, startDate, endDate } = req.body;
 
   try {
-      // Find the admin user based on username
-      const admin = await User.findOne({ username: username });
-      if (!admin) {
-          return res.status(404).json({ message: "Username Not found" });
-      }
+    // Find the admin user based on username
+    const admin = await User.findOne({ username: username });
+    if (!admin) {
+      return res.status(404).json({ message: "Username Not found" });
+    }
 
-      // Find the book based on book ID
-      const book = await Book.findById(bookId);  //Maybe switch to ISBN. Allow mutiple copies of books per user.
-      if (!book) {
-          return res.status(404).json({ message: "Book not found" });
-      }
+    // Find the book based on book ID
+    const book = await Book.findById(bookId); //Maybe switch to ISBN. Allow mutiple copies of books per user.
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
 
-      // Create a new Book Club
-      const newBookClub = new BookClub({
-          name,
-          book: book._id,
-          members: [admin._id],
-          admin: admin._id,
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
-      });
+    // Create a new Book Club
+    const newBookClub = new BookClub({
+      name,
+      book: book._id,
+      members: [admin._id],
+      admin: admin._id,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+    });
 
-      // Save the new Book Club to the database
-      await newBookClub.save();
+    // Save the new Book Club to the database
+    await newBookClub.save();
 
-      // Respond with the new bookclub
-      res.status(201).json(newBookClub);
+    // Respond with the new bookclub
+    res.status(201).json(newBookClub);
   } catch (error) {
-      console.error("Failed to create bookclub:", error);
-      res.status(500).json({ message: "Internal server error" });
+    console.error("Failed to create bookclub:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
-app.get('/api/bookclub/check-membership', async (req, res) => {
+app.get("/api/bookclub/check-membership", async (req, res) => {
   const { username } = req.query;
 
   try {
-      // Find the user based on username
-      const user = await User.findOne({ username: username });
-      if (!user) {
-          return res.status(404).json({ message: "User not found" });
-      }
+    // Find the user based on username
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-      // Find bookclubs where the user is a member
-      const bookClubs = await BookClub.find({ members: user._id });
+    // Find bookclubs where the user is a member
+    const bookClubs = await BookClub.find({ members: user._id });
 
-      if (bookClubs.length > 0) {
-          // User is a member of one or more book clubs
-          res.status(200).json({
-              isMember: true,
-              bookClubs: bookClubs,
-          });
-      } else {
-          // User is not a member of any book clubs
-          res.status(200).json({
-              isMember: false,
-          });
-      }
-    } catch (error) {
-      console.error("Failed to check for bookclub:", error);
-      res.status(500).json({ message: "Internal server error" });
+    if (bookClubs.length > 0) {
+      // User is a member of one or more book clubs
+      res.status(200).json({
+        isMember: true,
+        bookClubs: bookClubs,
+      });
+    } else {
+      // User is not a member of any book clubs
+      res.status(200).json({
+        isMember: false,
+      });
+    }
+  } catch (error) {
+    console.error("Failed to check for bookclub:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/api/bookclub/search", async (req, res) => {
+  const { search } = req.query;
+  const limit = 5;
+  try {
+    const bookclubs = await BookClub.find({
+      name: new RegExp(`^${search}`, "i"),
+    })
+      .select("name")
+      .limit(limit);
+    res.json(bookclubs);
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Error searching for bookclubs",
+        error: error.toString(),
+      });
+  }
+});
+
+app.patch("/api/bookclub/join", async (req, res) => {
+  const { username, bookClubName } = req.query;
+  console.log("starting");
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    const bookclub = await BookClub.findOneAndUpdate({ name: bookClubName });
+    if (!bookclub) {
+      return res.status(404).send("BookClub not found");
+    }
+    bookclub.members.push(user._id);
+    await bookclub.save();
+
+    res.json({ message: "Bookclub Membership Added", user: user });
+  } catch (error) {
+    res.status(500).send("Error: " + error.message);
   }
 });
 
@@ -810,6 +855,5 @@ app.get('/api/bookclub/check-membership', async (req, res) => {
 //Need .patch for bookclub/leave
 //Need .patch for bookclub/updateSettings
 //Need .get for bookclun/userReadProgrogress
-
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
