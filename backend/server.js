@@ -781,27 +781,40 @@ app.get("/api/bookclub/check-membership", async (req, res) => {
   const { username } = req.query;
 
   try {
-    // Find the user based on username
     const user = await User.findOne({ username: username });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Find bookclubs where the user is a member
-    const bookClubs = await BookClub.find({ members: user._id });
+    // Find the bookclub, populate book and members for return.
+    const bookClub = await BookClub.findOne({ members: user._id })
+    .populate('book')
+    .populate({
+      path: 'members',
+      select: 'username imageUrl'
+    })
+    .populate('messageBoard');
 
-    if (bookClubs.length > 0) {
-      // User is a member of one or more book clubs
-      res.status(200).json({
-        isMember: true,
-        bookClubs: bookClubs,
-      });
-    } else {
-      // User is not a member of any book clubs
-      res.status(200).json({
-        isMember: false,
+    console.log("BookClub Members:", bookClub.members.map(member => ({
+      username: member.username,
+      imageUrl: member.imageUrl
+    })));
+
+    if (!bookClub) {
+      return res.status(200).json({
+        isMember: false
       });
     }
+    //Finds users version of the book to also return
+    const userBook = await Book.findOne({ isbn: bookClub.book.isbn, userId: user._id });
+
+    res.status(200).json({
+      isMember: true,
+      bookClub: bookClub,
+      book: userBook || null,
+      members: bookClub.members
+    });
+
   } catch (error) {
     console.error("Failed to check for bookclub:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -898,6 +911,7 @@ app.patch("/api/bookclub/join", async (req, res) => {
     res.status(500).send("Error: " + error.message);
   }
 });
+
 
 //Need .get for bookclub/search
 //Need .patch for bookclub/leave
