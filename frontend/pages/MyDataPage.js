@@ -223,27 +223,27 @@ const MyDataPage = () => {
           <Text
             style={[styles.statsText, { color: isDarkMode ? "#FFF" : "#333" }]}
           >
-            Current Book Pages/Day: {"Calculating..."}
+            Current Book: {"Calculating..."}
           </Text>
           <Text
             style={[styles.statsText, { color: isDarkMode ? "#FFF" : "#333" }]}
           >
-            Current Year Total Pages: {currentYearTotalPages}
+            This Year
           </Text>
           <Text
             style={[styles.statsText, { color: isDarkMode ? "#FFF" : "#333" }]}
           >
-            Last Year Total Pages: {lastYearTotalPages}
+            Pages: {currentYearTotalPages} Daily: {currentYearPagesPerDay}
           </Text>
           <Text
             style={[styles.statsText, { color: isDarkMode ? "#FFF" : "#333" }]}
           >
-            Current Year Pages/Day: {currentYearPagesPerDay}
+            Last Year
           </Text>
           <Text
             style={[styles.statsText, { color: isDarkMode ? "#FFF" : "#333" }]}
           >
-            Last Year Pages/Day: {lastYearPagesPerDay}
+            Pages: {lastYearTotalPages}   Daily: {lastYearPagesPerDay}
           </Text>
         </View>
       </ScrollView>

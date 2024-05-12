@@ -793,7 +793,10 @@ app.get("/api/bookclub/check-membership", async (req, res) => {
       path: 'members',
       select: 'username imageUrl'
     })
-    .populate('messageBoard');
+    .populate({
+      path: 'messageBoard.postedBy',
+      select: 'username'
+    });
 
     console.log("BookClub Members:", bookClub.members.map(member => ({
       username: member.username,
@@ -812,7 +815,12 @@ app.get("/api/bookclub/check-membership", async (req, res) => {
       isMember: true,
       bookClub: bookClub,
       book: userBook || null,
-      members: bookClub.members
+      members: bookClub.members,
+      messageBoard: bookClub.messageBoard.map(message => ({
+        message: message.message,
+        postedBy: message.postedBy.username,
+        postedAt: message.postedAt
+      }))
     });
 
   } catch (error) {
@@ -911,6 +919,38 @@ app.patch("/api/bookclub/join", async (req, res) => {
     res.status(500).send("Error: " + error.message);
   }
 });
+
+app.post('/api/bookclub/:id/message', async (req, res) => {
+  const { message, username } = req.body;
+
+  try {
+    // find the user ID based on the username
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const userId = user._id;
+
+    // add the message to the book club message board
+    const bookClub = await BookClub.findByIdAndUpdate(
+      req.params.id,
+      { $push: { messageBoard: { message, postedBy: userId } } },
+      { new: true }
+    ).populate({
+      path: 'messageBoard.postedBy',
+      select: 'username'
+    });
+
+    res.status(201).json(bookClub.messageBoard);
+  } catch (error) {
+    res.status(400).json({ message: 'Error posting message', error });
+  }
+});
+
+
+
+
+
 
 
 //Need .get for bookclub/search

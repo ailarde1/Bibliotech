@@ -13,6 +13,8 @@ import {
 import { useTheme } from "../ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
+import { useRefresh } from "../RefreshContext";
+
 import * as SecureStore from 'expo-secure-store';
 
 const SearchBookClub = () => {
@@ -20,6 +22,7 @@ const SearchBookClub = () => {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const { triggerRefresh } = useRefresh();
 
   const handleSearch = async () => {
     if (searchQuery.trim() === ""){
@@ -52,6 +55,8 @@ const SearchBookClub = () => {
       const data = await response.json();
       if (response.ok) {
         Alert.alert("Success", "You have successfully joined the book club");
+        navigation.goBack();
+        triggerRefresh("SocialPage");
       } else {
         throw new Error(data.message || "Failed to join the book club.");
       }
@@ -64,7 +69,7 @@ const SearchBookClub = () => {
     <View
       style={[
         styles.container,
-        { backgroundColor: isDarkMode ? "#333" : "#FFF" },
+        { backgroundColor: isDarkMode ? "#333" : "#EEE" },
       ]}
     >
       <TextInput
@@ -117,11 +122,14 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginBottom: 20,
   },
+  itemText:{
+    fontSize: 30,
+  },
   searchItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 18,
+    padding: 20,
     marginBottom: 5,
   },
   item: {

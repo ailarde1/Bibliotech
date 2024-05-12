@@ -15,6 +15,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import * as SecureStore from "expo-secure-store";
 import { useTheme } from "../ThemeContext";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { useRefresh } from "../RefreshContext";
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -29,6 +30,7 @@ const CreateBookClub = () => {
   const [endDate, setEndDate] = useState(new Date());
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const { triggerRefresh } = useRefresh();
 
   useEffect(() => {
     if (route.params?.selectedBook) {
@@ -93,6 +95,7 @@ const CreateBookClub = () => {
       if (response.ok) {
         Alert.alert("Success", "Book club created successfully!");
         navigation.goBack();
+        triggerRefresh("SocialPage");
       } else {
         Alert.alert("Error", jsonResponse.message || "An error occurred");
       }
@@ -139,7 +142,7 @@ const CreateBookClub = () => {
       <Button
         title="Select Book"
         onPress={handleSelectBook}
-        color={isDarkMode ? "#AAA" : "#333"}
+        color={isDarkMode ? "#005ECB" : "#007AFF"}
       />
       <View style={styles.inputContainer}>
         <Text style={[styles.label, { color: isDarkMode ? "#FFF" : "#333" }]}>
