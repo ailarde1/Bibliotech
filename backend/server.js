@@ -12,7 +12,7 @@ const Book = require("../models/Book"); // Import Book model
 const User = require("../models/User"); // Import the User model
 const BookClub = require("../models/Bookclub"); //Import the Bookclub Model
 
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const saltRounds = 10;
 const cors = require("cors");
 const PORT = process.env.PORT || 5000;

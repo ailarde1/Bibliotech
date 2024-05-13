@@ -6,6 +6,7 @@
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/stack": "^6.3.29",
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "expo": "^50.0.14",
     "mongoose": "^8.2.3",
     "react-native": "^0.64.3",
