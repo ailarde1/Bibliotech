@@ -8,9 +8,9 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const Book = require("../models/Book"); // Import Book model
-const User = require("../models/User"); // Import the User model
-const BookClub = require("../models/Bookclub"); //Import the Bookclub Model
+const Book = require("./models/Book"); // Import Book model
+const User = require("./models/User"); // Import the User model
+const BookClub = require("./models/Bookclub"); //Import the Bookclub Model
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -26,35 +26,6 @@ const upload = multer({ storage: storage });
 
 app.use(express.json());
 app.use(cors());
-
-io.on("connection", (socket) => {
-  console.log("A client connected");
-
-  // Example event listener
-  socket.on("chat message", (msg) => {
-    console.log("Message received:", msg);
-    // Broadcast the message to all connected clients
-    io.emit("chat message", msg);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("A client disconnected");
-  });
-});
-const PORT2 = process.env.PORT2 || 5001;
-server.listen(PORT2, () => {
-  console.log(`Server running on port ${PORT2}`);
-});
-
-server.on("error", (err) => {
-  if (err.code === "EADDRINUSE") {
-    console.error("Port is already in use");
-  } else {
-    console.error("An error occurred:", err.message);
-  }
-});
-
-app.use(express.json());
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
@@ -958,4 +929,5 @@ app.post('/api/bookclub/:id/message', async (req, res) => {
 //Need .patch for bookclub/updateSettings
 //Need .get for bookclun/userReadProgrogress
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+//app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+module.exports = app;

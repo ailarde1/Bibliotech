@@ -5,7 +5,6 @@
     "@react-native-segmented-control/segmented-control": "^2.5.0",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/stack": "^6.3.29",
-    "bcrypt": "^5.1.1",
     "expo": "^50.0.14",
     "mongoose": "^8.2.3",
     "react-native": "^0.64.3",
