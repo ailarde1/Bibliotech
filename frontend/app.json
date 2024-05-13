@@ -18,7 +18,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "This app requires access to the photo library."
-      }
+      },
+      "bundleIdentifier": "com.anonymous.MobileFront"
     },
     "android": {
       "adaptiveIcon": {

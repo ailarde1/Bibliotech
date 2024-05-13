@@ -24,8 +24,8 @@ const { Readable } = require("stream");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-//app.use(express.json());
-//app.use(cors());
+app.use(express.json());
+app.use(cors());
 
 io.on("connection", (socket) => {
   console.log("A client connected");
@@ -116,7 +116,7 @@ app.get("/api/search", async (req, res) => {
       `${googleBooksApiUrl}?q=${encodeURIComponent(query)}`
     );
     //console.log(response);
-    res.json(response.data);
+    res.json(response.data);  
   } catch (error) {
     res.status(500).json({
       message: "Error fetching data from Google Books API",

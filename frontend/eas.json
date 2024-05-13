@@ -11,11 +11,19 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "buildConfiguration": "Release",
+        "enterpriseProvisioning": "universal"
+      },
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://4243-2603-9008-1800-38b7-85b2-838c-3c09-4cf2.ngrok-free.app/api"
       }
     },
-    "production": {}
-  },
-  "submit": {
-    "production": {}
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://4243-2603-9008-1800-38b7-85b2-838c-3c09-4cf2.ngrok-free.app/api"
+      }
+    }
   }
 }

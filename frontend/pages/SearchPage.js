@@ -30,7 +30,13 @@ function SearchPage() {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
-      setBooks(data.items || []);
+      const updatedBooks = data.items?.map(book => {
+        if (book.volumeInfo?.imageLinks?.thumbnail) {
+          book.volumeInfo.imageLinks.thumbnail = book.volumeInfo.imageLinks.thumbnail.replace(/^http:/, 'https:');
+        }
+        return book;
+      }) || [];
+      setBooks(updatedBooks);
     } catch (error) {
       console.error("Error fetching search results: ", error);
       setBooks([]);

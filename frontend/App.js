@@ -144,12 +144,6 @@ const App = () => {
 const MainApp = () => {
   const { isDarkMode } = useTheme();
   const { isAuthenticated } = useAuth();
-
-  // If not authenticated shows the LoginPage
-  if (!isAuthenticated) {
-    return <LoginPage />;
-  }
-
   const screenOptions = {
     tabBarStyle: {
       backgroundColor: isDarkMode ? "#333" : "#fff",
@@ -167,8 +161,11 @@ const MainApp = () => {
     tabBarShowLabel: false,
   };
   const iconSize = 30;
-
-  // Else shows the main app
+  // If not authenticated shows the LoginPage
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+  if (isAuthenticated) { // Else shows the main app
   return (
     <Tab.Navigator initialRouteName="Bookshelfs" screenOptions={screenOptions}>
       <Tab.Screen
@@ -222,6 +219,7 @@ const MainApp = () => {
       />
     </Tab.Navigator>
   );
+}
 };
 
 export default App;
