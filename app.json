@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "52745078-6565-480f-8ecb-caa0229c9bee"
+      }
+    },
+    "android": {
+      "package": "com.maxxgarris3.bibliotech"
+    }
+  }
+}

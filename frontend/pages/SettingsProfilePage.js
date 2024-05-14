@@ -51,7 +51,7 @@ const SettingsProfilePage = ({ navigation }) => {
   };
 
   const navigateToEditProfile = () => {
-    navigation.navigate("EditProfile", { userInfo: userInfo });
+    navigation.navigate("Edit Profile", { userInfo: userInfo });
   };
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync("username");

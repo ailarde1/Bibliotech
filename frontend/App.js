@@ -1,12 +1,11 @@
-import React from "react";
+import React, { useContext } from 'react';
 
-import { Button } from "react-native";
+import { Button, StatusBar } from "react-native";
 //Using for easy page setup
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { RefreshProvider } from "./pages/RefreshContext";
-import { useTheme } from "./pages/ThemeContext";
 
 // Import all the pages
 import SearchPage from "./pages/SearchPage";
@@ -26,8 +25,7 @@ import EditBookDetailsPage from "./pages/EditBookDetailsPage";
 import EditProfilePage from "./pages/EditProfilePage";
 import DetailedFriendPage from "./pages/DetailedFriendPage";
 import { AuthProvider, useAuth } from "./pages/Authentication";
-
-import { ThemeProvider } from "./pages/ThemeContext";
+import { ThemeProvider, useTheme } from "./pages/ThemeContext";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 const Tab = createBottomTabNavigator();
@@ -72,11 +70,11 @@ const SocialStackScreen = () => {
       }}
     >
       <SocialStack.Screen name="BookClub" component={SocialPage} />
-      <SocialStack.Screen name="SearchBookClub" component={SearchBookClub} />
-      <SocialStack.Screen name="CreateBookClub" component={CreateBookClub} />
-      <SocialStack.Screen name="BookClubShelfSelecting" component={BookClubShelfSelecting} />
-      <SocialStack.Screen name="ChatScreen" component={ChatScreen} />
-      <SocialStack.Screen name="FriendsPage" component={FriendsPage} />
+      <SocialStack.Screen name="Search BookClubs" component={SearchBookClub} />
+      <SocialStack.Screen name="Create BookClub" component={CreateBookClub} />
+      <SocialStack.Screen name="Select Book" component={BookClubShelfSelecting} />
+      <SocialStack.Screen name="Chat Screen" component={ChatScreen} />
+      <SocialStack.Screen name="Friends Page" component={FriendsPage} />
     </SocialStack.Navigator>
   );
 };
@@ -96,9 +94,9 @@ const BookStackScreen = () => {
       }}
     >
       <BookStack.Screen name="Bookshelf" component={BookshelfPage} />
-      <BookStack.Screen name="BookDetails" component={BookDetailsPage} />
+      <BookStack.Screen name="Book Details" component={BookDetailsPage} />
       <BookStack.Screen
-        name="EditBookDetails"
+        name="Edit Book Details"
         component={EditBookDetailsPage}
       />
     </BookStack.Navigator>
@@ -120,9 +118,23 @@ const SettingsStackScreen = () => {
       }}
     >
       <SettingsStack.Screen name="Settings" component={SettingsProfilePage} />
-      <SettingsStack.Screen name="EditProfile" component={EditProfilePage} />
+      <SettingsStack.Screen name="Edit Profile" component={EditProfilePage} />
       <SettingsStack.Screen name="LoginPage" component={LoginPage} />
     </SettingsStack.Navigator>
+  );
+};
+
+const AppContent = () => {
+  const { isDarkMode } = useTheme();
+
+  return (
+    <>
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor={isDarkMode ? '#333333' : '#FFFFFF'}
+      />
+      <MainApp />
+    </>
   );
 };
 
@@ -132,7 +144,7 @@ const App = () => {
       <RefreshProvider>
         <ThemeProvider>
           <NavigationContainer>
-            <MainApp />
+          <AppContent />
           </NavigationContainer>
         </ThemeProvider>
       </RefreshProvider>

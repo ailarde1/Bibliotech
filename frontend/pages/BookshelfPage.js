@@ -97,7 +97,7 @@ const BookshelfPage = ({ navigation }) => {
         viewStyle === "list" ? styles.bookItem : styles.bookShelfItem,
         { backgroundColor: isDarkMode ? "#444445" : "#FFF" },
       ]}
-      onPress={() => navigation.navigate("BookDetails", { book: item })}
+      onPress={() => navigation.navigate("Book Details", { book: item })}
     >
       <Image source={{ uri: item.thumbnail }} style={styles.bookImage} />
       {viewStyle === "list" && (

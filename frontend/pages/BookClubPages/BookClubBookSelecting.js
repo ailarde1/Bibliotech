@@ -92,7 +92,7 @@ const BookClubShelfSelecting = ({ navigation, route }) => {
           style={[
             viewStyle === "list" ? styles.bookItem : styles.bookShelfItem,
             { backgroundColor: isDarkMode ? "#444445" : "#FFF" },
-            item._id === selectedBook?._id ? { borderColor: "blue", borderWidth: 2 } : {}
+            item._id === selectedBook?._id ? { borderColor: isDarkMode ? "#005ECB" : "#007AFF" , borderWidth: 2 } : {}
           ]}
           onPress={() => setSelectedBook(item)}
         >

@@ -8,12 +8,12 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { useAuth } from "./Authentication";
 import * as SecureStore from "expo-secure-store";
 import { useTheme } from "./ThemeContext";
 
 const apiUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 import { useRefresh } from "./RefreshContext";
+import { AuthProvider, useAuth } from "./Authentication";
 
 const LoginPage = ({ navigation }) => {
   const [username, setUsername] = useState("");

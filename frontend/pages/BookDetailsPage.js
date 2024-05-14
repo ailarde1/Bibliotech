@@ -15,7 +15,7 @@ const BookDetailsPage = ({ route, navigation }) => {
   const { book } = route.params;
 
   const navigateToEdit = () => {
-    navigation.navigate("EditBookDetails", { book });
+    navigation.navigate("Edit Book Details", { book });
   };
 
   return (

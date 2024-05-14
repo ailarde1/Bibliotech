@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "MobileFront",
+    "name": "BiblioTech",
     "slug": "MobileFront",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon.jpg",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/icon.jpg",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#333333"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -23,8 +23,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/icon.jpg",
+        "backgroundColor": "#005ecb"
       },
       "permissions": [
         "READ_EXTERNAL_STORAGE"

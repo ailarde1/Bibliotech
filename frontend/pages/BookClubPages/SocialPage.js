@@ -88,11 +88,11 @@ const SocialPage = () => {
   }, []);
 
   const navigateToCreateBookClub = useCallback(() => {
-    navigation.navigate("CreateBookClub");
+    navigation.navigate("Create BookClub");
   }, [navigation]);
 
   const navigateToSearchBookClub = useCallback(() => {
-    navigation.navigate("SearchBookClub");
+    navigation.navigate("Search BookClubs");
   }, [navigation]);
 
   const sendMessage = async () => {

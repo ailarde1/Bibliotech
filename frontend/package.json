@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@miblanchard/react-native-slider": "^2.6.0",
-    "@react-native-community/datetimepicker": "^7.7.0",
+    "@react-native-community/datetimepicker": "^8.0.1",
     "@react-native-community/slider": "^4.5.2",
     "@react-native-picker/picker": "~2.7.5",
     "@react-native-segmented-control/segmented-control": "2.5.2",
@@ -18,10 +18,10 @@
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/stack": "^6.3.29",
     "@types/react-native-snap-carousel": "^3.8.11",
-    "aws-sdk": "^2.1618.0",
+    "aws-sdk": "^2.1619.0",
     "axios": "^1.6.8",
     "deprecated-react-native-prop-types": "^5.0.0",
-    "expo": "^51.0.2",
+    "expo": "^51.0.5",
     "expo-dev-client": "~4.0.13",
     "expo-image-picker": "~15.0.4",
     "expo-secure-store": "~13.0.1",
@@ -39,7 +39,8 @@
     "react-native-svg": "^15.2.0",
     "react-native-swiper": "^1.6.0",
     "react-native-vector-icons": "^10.1.0",
-    "socket.io-client": "^4.7.5"
+    "socket.io-client": "^4.7.5",
+    "uri-js": "^4.2.2"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",

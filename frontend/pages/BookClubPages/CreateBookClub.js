@@ -39,7 +39,7 @@ const CreateBookClub = () => {
   }, [route.params?.selectedBook]);
 
   const handleSelectBook = () => {
-    navigation.navigate("BookClubShelfSelecting");
+    navigation.navigate("Select Book");
   };
 
   const renderDatePicker = (date, setDate, showPicker, setShowPicker) =>
