@@ -56,7 +56,7 @@ const SearchBookClub = () => {
       if (response.ok) {
         Alert.alert("Success", "You have successfully joined the book club");
         navigation.goBack();
-        triggerRefresh("SocialPage");
+        triggerRefresh("Social Page");
       } else {
         throw new Error(data.message || "Failed to join the book club.");
       }

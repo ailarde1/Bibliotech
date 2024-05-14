@@ -888,15 +888,19 @@ const styles = StyleSheet.create({
   },
   activeStatusButtonDark: {
     backgroundColor: "#005ECB",
+    borderWidth: 1,
   },
   activeStatusButtonLight: {
     backgroundColor: "#007AFF",
+    borderWidth: 1,
   },
   inactiveStatusButtonDark: {
     backgroundColor: "#DDDDDD",
+    borderWidth: 1,
   },
   inactiveStatusButtonLight: {
     backgroundColor: "#FFF",
+    borderWidth: 1,
   },
   statusButtonTextActive: {
     color: "#FFF",

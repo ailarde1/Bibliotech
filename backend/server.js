@@ -6,18 +6,16 @@ const socketIo = require("socket.io");
 const axios = require("axios");
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
 
-const Book = require("../models/Book"); // Import Book model
-const User = require("../models/User"); // Import the User model
-const BookClub = require("../models/Bookclub"); //Import the Bookclub Model
+const Book = require("./models/Book"); // Import Book model
+const User = require("./models/User"); // Import the User model
+const BookClub = require("./models/Bookclub"); //Import the Bookclub Model
 
 const bcrypt = require("bcryptjs");
 const saltRounds = 10;
 const cors = require("cors");
 const PORT = process.env.PORT || 5000;
 const { Upload } = require("@aws-sdk/lib-storage");
-
 const { S3Client } = require("@aws-sdk/client-s3");
 const multer = require("multer");
 const { Readable } = require("stream");
@@ -27,44 +25,11 @@ const upload = multer({ storage: storage });
 app.use(express.json());
 app.use(cors());
 
-io.on("connection", (socket) => {
-  console.log("A client connected");
-
-  // Example event listener
-  socket.on("chat message", (msg) => {
-    console.log("Message received:", msg);
-    // Broadcast the message to all connected clients
-    io.emit("chat message", msg);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("A client disconnected");
-  });
-});
-const PORT2 = process.env.PORT2 || 5001;
-server.listen(PORT2, () => {
-  console.log(`Server running on port ${PORT2}`);
-});
-
-server.on("error", (err) => {
-  if (err.code === "EADDRINUSE") {
-    console.error("Port is already in use");
-  } else {
-    console.error("An error occurred:", err.message);
-  }
-});
-
-app.use(express.json());
-
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
 });
 
-app.post("/api/upload", upload.single("file"), async (req, res) => {
+app.post("/upload", upload.single("file"), async (req, res) => {
   console.log("upload request sent");
   if (!req.file) {
     return res.status(400).send("No file uploaded");
@@ -92,9 +57,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
     await parallelUploads3.done();
 
     // Constructs URL of the uploaded file
-    const uploadedFileUrl = `https://${uploadParams.Bucket}.s3.${
-      process.env.AWS_REGION
-    }.amazonaws.com/${encodeURIComponent(uploadParams.Key)}`;
+    const uploadedFileUrl = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${encodeURIComponent(uploadParams.Key)}`;
 
     console.log("File uploaded successfully:", uploadedFileUrl);
     res.status(200).json({ message: "File uploaded", url: uploadedFileUrl });
@@ -103,9 +66,8 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
     res.status(500).send("Failed to upload file");
   }
 });
-
 //Search endpoint for Google Api.
-app.get("/api/search", async (req, res) => {
+app.get("/search", async (req, res) => {
   try {
     const { query } = req.query;
     if (!query) {
@@ -125,7 +87,7 @@ app.get("/api/search", async (req, res) => {
   }
 });
 
-app.get("/api/books/info/title/:title", async (req, res) => {
+app.get("/books/info/title/:title", async (req, res) => {
   try {
     const { title } = req.params;
     if (!title) {
@@ -180,7 +142,7 @@ app.get("/api/books/info/title/:title", async (req, res) => {
 });
 
 //Get books endpoint
-app.get("/api/books", async (req, res) => {
+app.get("/books", async (req, res) => {
   const username = req.query.username;
 
   //checks if valid username, finds corresponding userId
@@ -198,7 +160,7 @@ app.get("/api/books", async (req, res) => {
   }
 });
 
-app.get("/api/userinfo", async (req, res) => {
+app.get("/userinfo", async (req, res) => {
   const username = req.query.username; // Receive username
 
   try {
@@ -223,7 +185,7 @@ app.get("/api/userinfo", async (req, res) => {
 });
 
 //Add new book endpoint
-app.post("/api/books", async (req, res) => {
+app.post("/books", async (req, res) => {
   const {
     title,
     authors,
@@ -294,7 +256,7 @@ app.post("/api/books", async (req, res) => {
 });
 
 //Edit book endpoint
-app.patch("/api/books/:isbn", async (req, res) => {
+app.patch("/books/:isbn", async (req, res) => {
   const { isbn } = req.params;
   const { username, ...updateData } = req.body;
   console.log("Received ISBN:", isbn); // Log the ISBN received
@@ -326,7 +288,7 @@ app.patch("/api/books/:isbn", async (req, res) => {
 });
 
 //Delete book endpoint
-app.delete("/api/books/:isbn", async (req, res) => {
+app.delete("/books/:isbn", async (req, res) => {
   const { isbn } = req.params;
   const { username } = req.body;
   console.log("Received ISBN to delete:", isbn);
@@ -355,7 +317,7 @@ app.delete("/api/books/:isbn", async (req, res) => {
 });
 
 // New user Creation
-app.post("/api/new-user", async (req, res) => {
+app.post("/new-user", async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -384,7 +346,7 @@ app.post("/api/new-user", async (req, res) => {
   }
 });
 
-app.patch("/api/userinfo", async (req, res) => {
+app.patch("/userinfo", async (req, res) => {
   const { currentUsername, newUsername, imageUrl, newPassword } = req.body;
 
   try {
@@ -423,7 +385,7 @@ app.patch("/api/userinfo", async (req, res) => {
 });
 
 //User login
-app.post("/api/login", async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -454,7 +416,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-app.get("/api/reading", async (req, res) => {
+app.get("/reading", async (req, res) => {
   const username = req.query.username;
 
   try {
@@ -473,7 +435,7 @@ app.get("/api/reading", async (req, res) => {
   }
 });
 
-app.patch("/api/updatePage", async (req, res) => {
+app.patch("/updatePage", async (req, res) => {
   const { bookId, currentPage } = req.body;
   const pagesInt = parseInt(currentPage, 10);
 
@@ -504,7 +466,7 @@ app.patch("/api/updatePage", async (req, res) => {
   }
 });
 
-app.get("/api/friends", async (req, res) => {
+app.get("/friends", async (req, res) => {
   const { username } = req.query;
 
   try {
@@ -524,7 +486,7 @@ app.get("/api/friends", async (req, res) => {
   }
 });
 
-app.get("/api/friends/requests", async (req, res) => {
+app.get("/friends/requests", async (req, res) => {
   const { username } = req.query;
 
   try {
@@ -545,7 +507,7 @@ app.get("/api/friends/requests", async (req, res) => {
   }
 });
 
-app.post("/api/friends/accept", async (req, res) => {
+app.post("/friends/accept", async (req, res) => {
   const { username, requesterId } = req.body;
 
   try {
@@ -576,7 +538,7 @@ app.post("/api/friends/accept", async (req, res) => {
   }
 });
 
-app.post("/api/friends/decline", async (req, res) => {
+app.post("/friends/decline", async (req, res) => {
   const { username, requesterId } = req.body;
 
   try {
@@ -597,7 +559,7 @@ app.post("/api/friends/decline", async (req, res) => {
   }
 });
 
-app.get("/api/users/search", async (req, res) => {
+app.get("/users/search", async (req, res) => {
   const { search } = req.query;
   const limit = 5;
   try {
@@ -612,7 +574,7 @@ app.get("/api/users/search", async (req, res) => {
   }
 });
 
-app.post("/api/friends/send-request", async (req, res) => {
+app.post("/friends/send-request", async (req, res) => {
   const { fromUsername, toUsername } = req.body;
 
   try {
@@ -650,7 +612,7 @@ app.post("/api/friends/send-request", async (req, res) => {
   }
 });
 
-app.get("/api/pages-read/:year", async (req, res) => {
+app.get("/pages-read/:year", async (req, res) => {
   const { year } = req.params;
   const { username } = req.query;
   const yearInt = parseInt(year, 10);
@@ -720,7 +682,7 @@ app.get("/api/pages-read/:year", async (req, res) => {
   }
 });
 
-app.patch("/api/user/settings", async (req, res) => {
+app.patch("/user/settings", async (req, res) => {
   const { username, darkMode } = req.body;
 
   try {
@@ -740,7 +702,7 @@ app.patch("/api/user/settings", async (req, res) => {
   }
 });
 
-app.post("/api/bookclub/create", async (req, res) => {
+app.post("/bookclub/create", async (req, res) => {
   const { name, bookId, username, startDate, endDate } = req.body;
 
   try {
@@ -777,7 +739,7 @@ app.post("/api/bookclub/create", async (req, res) => {
   }
 });
 
-app.get("/api/bookclub/check-membership", async (req, res) => {
+app.get("/bookclub/check-membership", async (req, res) => {
   const { username } = req.query;
 
   try {
@@ -829,7 +791,7 @@ app.get("/api/bookclub/check-membership", async (req, res) => {
   }
 });
 
-app.get("/api/bookclub/search", async (req, res) => {
+app.get("/bookclub/search", async (req, res) => {
   const { search } = req.query;
   const limit = 5;
   try {
@@ -847,7 +809,7 @@ app.get("/api/bookclub/search", async (req, res) => {
   }
 });
 
-app.patch("/api/bookclub/join", async (req, res) => {
+app.patch("/bookclub/join", async (req, res) => {
   const { username, bookClubName } = req.query;
   //console.log("starting");
   try {
@@ -920,7 +882,7 @@ app.patch("/api/bookclub/join", async (req, res) => {
   }
 });
 
-app.post('/api/bookclub/:id/message', async (req, res) => {
+app.post('/bookclub/:id/message', async (req, res) => {
   const { message, username } = req.body;
 
   try {
@@ -953,9 +915,14 @@ app.post('/api/bookclub/:id/message', async (req, res) => {
 
 
 
-//Need .get for bookclub/search
 //Need .patch for bookclub/leave
 //Need .patch for bookclub/updateSettings
-//Need .get for bookclun/userReadProgrogress
+//Need .get for bookclub/userReadProgrress
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+//app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const awsServerlessExpress = require('aws-serverless-express');
+const serverlessExpress = awsServerlessExpress.createServer(app);
+
+module.exports.handler = (event, context) => {
+  return awsServerlessExpress.proxy(serverlessExpress, event, context);
+};

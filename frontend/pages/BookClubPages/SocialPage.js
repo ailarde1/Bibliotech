@@ -36,7 +36,7 @@ const SocialPage = () => {
     setRefreshing(false);
   };
   useEffect(() => {
-    if (refreshTrigger === "SocialPage") {
+    if (refreshTrigger === "Social Page") {
       fetchMembershipStatus();
       triggerRefresh("EmptyState");
     }

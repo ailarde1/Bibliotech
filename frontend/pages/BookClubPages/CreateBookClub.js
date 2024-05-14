@@ -95,7 +95,7 @@ const CreateBookClub = () => {
       if (response.ok) {
         Alert.alert("Success", "Book club created successfully!");
         navigation.goBack();
-        triggerRefresh("SocialPage");
+        triggerRefresh("Social Page");
       } else {
         Alert.alert("Error", jsonResponse.message || "An error occurred");
       }

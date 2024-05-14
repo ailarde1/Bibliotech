@@ -2,7 +2,13 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 
 const AuthContext = createContext({});
 
+<<<<<<< Updated upstream
 // Sends Authentication status back to children
+=======
+
+const AUTH_KEY = "isAuthenticated";
+
+>>>>>>> Stashed changes
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 

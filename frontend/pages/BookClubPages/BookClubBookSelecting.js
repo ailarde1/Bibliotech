@@ -83,7 +83,7 @@ const BookClubShelfSelecting = ({ navigation, route }) => {
     
     const confirmSelection = () => {
         if (selectedBook) {
-          navigation.navigate("CreateBookClub", { selectedBook });
+          navigation.navigate("Create BookClub", { selectedBook });
         }
       };
   
